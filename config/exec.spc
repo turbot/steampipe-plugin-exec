@@ -28,4 +28,10 @@ connection "exec" {
 -----END RSA PRIVATE KEY-----
 EOK
 
+  # Windows only - WinrM over HTTPS. Defaults to false
+  #https = true
+
+  # Windows only - Ignore certificate for HTTPS connection. Defaults to false
+	#insecure = true
+
 }

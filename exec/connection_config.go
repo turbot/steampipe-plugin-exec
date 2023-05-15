@@ -17,6 +17,8 @@ type execConfig struct {
 	Host        *string `cty:"host"`
 	HostKey     *string `cty:"host_key"`
 	Port        *int    `cty:"port"`
+	Https       *bool   `cty:"https"`
+	Insecure    *bool   `cty:"insecure"`
 }
 
 /*
@@ -89,6 +91,12 @@ var ConfigSchema = map[string]*schema.Attribute{
 	},
 	"port": {
 		Type: schema.TypeInt,
+	},
+	"https": {
+		Type: schema.TypeBool,
+	},
+	"insecure": {
+		Type: schema.TypeBool,
 	},
 }
 

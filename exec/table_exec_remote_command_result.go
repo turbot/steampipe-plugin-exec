@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/mitchellh/go-linereader"
-	"github.com/turbot/go-exec-communicator"
+	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/remote"
 	"github.com/turbot/go-exec-communicator/shared"
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
@@ -107,6 +107,12 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 	if conf.Port != nil {
 		config.Port = uint16(*conf.Port)
 	}
+	if conf.Https != nil {
+		config.HTTPS = *conf.Https
+	}
+	if conf.Insecure != nil {
+		config.Insecure = *conf.Insecure
+	}
 	if config.Type == "ssh" {
 		if conf.User != nil {
 			config.User = *conf.User
@@ -119,6 +125,18 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 			config.PrivateKey = *conf.PrivateKey
 		} else {
 			return nil, errors.New("password or private_key is required for SSH connections")
+		}
+	}
+	if config.Type == "winrm" {
+		if conf.User != nil {
+			config.User = *conf.User
+		} else {
+			return nil, errors.New("user is required for WinRM connections")
+		}
+		if conf.Password != nil {
+			config.Password = *conf.Password
+		} else {
+			return nil, errors.New("password is required for WinRM connections")
 		}
 	}
 
