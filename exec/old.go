@@ -12,7 +12,7 @@ import (
 	"github.com/armon/circbuf"
 	"github.com/mitchellh/go-linereader"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 func listLocalCommandTerraformStyle(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
@@ -21,7 +21,7 @@ func listLocalCommandTerraformStyle(ctx context.Context, d *plugin.QueryData, _ 
 
 	plugin.Logger(ctx).Warn("listLocalCommand", "conf", conf)
 
-	command := d.KeyColumnQuals["command"].GetStringValue()
+	command := d.EqualsQualString("command")
 	if command == "" {
 		return nil, errors.New("command cannot be empty")
 	}
@@ -160,7 +160,7 @@ func listLocalCommandTerraformStyle(ctx context.Context, d *plugin.QueryData, _ 
 
 }
 
-//func copyUIOutput(o provisioners.UIOutput, r io.Reader, doneCh chan<- struct{}) {
+// func copyUIOutput(o provisioners.UIOutput, r io.Reader, doneCh chan<- struct{}) {
 func copyUIOutput(ctx context.Context, d *plugin.QueryData, r io.Reader, doneCh chan<- struct{}) error {
 	defer close(doneCh)
 	lr := linereader.New(r)
