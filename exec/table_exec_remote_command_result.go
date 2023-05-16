@@ -95,6 +95,7 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 		Port:    22,
 	}
 
+	// Bastion settings
 	if conf.BastionUser != nil {
 		config.BastionUser = *conf.BastionUser
 	}
@@ -112,6 +113,24 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 	if conf.BastionPort != nil {
 		config.BastionPort = uint16(*conf.BastionPort)
+	}
+
+	// PROXY settings
+	if conf.ProxyHost != nil {
+		config.ProxyHost = *conf.ProxyHost
+	}
+	if conf.ProxyPort != nil {
+		config.ProxyPort = uint16(*conf.ProxyPort)
+	}
+	if conf.ProxyUserName != nil {
+		config.ProxyUserName = *conf.ProxyUserName
+	}
+	if conf.ProxyUserPassword != nil {
+		config.ProxyUserPassword = *conf.ProxyUserPassword
+	} else {
+		if conf.ProxyUserName != nil {
+			return nil, errors.New("password is required when proxy username is set")
+		}
 	}
 
 	if conf.Protocol != nil {

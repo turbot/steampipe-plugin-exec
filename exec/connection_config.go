@@ -26,6 +26,11 @@ type execConfig struct {
 	BastionHost       *string `cty:"bastion_host"`
 	BastionHostKey    *string `cty:"bastion_host_key"`
 	BastionPort       *int    `cty:"bastion_port"`
+
+	ProxyHost         *string `cty:"proxy_host"`
+	ProxyPort         *int    `cty:"proxy_port"`
+	ProxyUserName     *string `cty:"proxy_user_name"`
+	ProxyUserPassword *string `cty:"proxy_user_password"`
 }
 
 /*
@@ -43,12 +48,6 @@ type execConfig struct {
 	TargetPlatform string
 	Timeout        string
 	TimeoutVal     time.Duration
-
-	ProxyScheme       string
-	ProxyHost         string
-	ProxyPort         uint16
-	ProxyUserName     string
-	ProxyUserPassword string
 
 	BastionUser        string
 	BastionPassword    string
@@ -122,6 +121,18 @@ var ConfigSchema = map[string]*schema.Attribute{
 	},
 	"bastion_port": {
 		Type: schema.TypeInt,
+	},
+	"proxy_host": {
+		Type: schema.TypeString,
+	},
+	"proxy_port": {
+		Type: schema.TypeInt,
+	},
+	"proxy_user_name": {
+		Type: schema.TypeString,
+	},
+	"proxy_user_password": {
+		Type: schema.TypeString,
 	},
 }
 
