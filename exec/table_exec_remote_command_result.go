@@ -94,6 +94,26 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 		Timeout: "10s",
 		Port:    22,
 	}
+
+	if conf.BastionUser != nil {
+		config.BastionUser = *conf.BastionUser
+	}
+	if conf.BastionPassword != nil {
+		config.BastionPassword = *conf.BastionPassword
+	}
+	if conf.BastionPrivateKey != nil {
+		config.BastionPrivateKey = *conf.BastionPrivateKey
+	}
+	if conf.BastionHost != nil {
+		config.BastionHost = *conf.BastionHost
+	}
+	if conf.BastionHostKey != nil {
+		config.BastionHostKey = *conf.BastionHostKey
+	}
+	if conf.BastionPort != nil {
+		config.BastionPort = uint16(*conf.BastionPort)
+	}
+
 	if conf.Protocol != nil {
 		config.Type = *conf.Protocol
 	} else {

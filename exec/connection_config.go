@@ -19,6 +19,13 @@ type execConfig struct {
 	Port        *int    `cty:"port"`
 	Https       *bool   `cty:"https"`
 	Insecure    *bool   `cty:"insecure"`
+
+	BastionUser       *string `cty:"bastion_user"`
+	BastionPassword   *string `cty:"bastion_password"`
+	BastionPrivateKey *string `cty:"bastion_private_key"`
+	BastionHost       *string `cty:"bastion_host"`
+	BastionHostKey    *string `cty:"bastion_host_key"`
+	BastionPort       *int    `cty:"bastion_port"`
 }
 
 /*
@@ -97,6 +104,24 @@ var ConfigSchema = map[string]*schema.Attribute{
 	},
 	"insecure": {
 		Type: schema.TypeBool,
+	},
+	"bastion_user": {
+		Type: schema.TypeString,
+	},
+	"bastion_password": {
+		Type: schema.TypeString,
+	},
+	"bastion_private_key": {
+		Type: schema.TypeString,
+	},
+	"bastion_host": {
+		Type: schema.TypeString,
+	},
+	"bastion_host_key": {
+		Type: schema.TypeString,
+	},
+	"bastion_port": {
+		Type: schema.TypeInt,
 	},
 }
 
