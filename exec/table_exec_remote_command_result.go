@@ -2,7 +2,6 @@ package exec
 
 import (
 	"context"
-	"errors"
 	"io"
 	"sync"
 
@@ -38,9 +37,6 @@ func tableExecRemoteCommandResult(ctx context.Context) *plugin.Table {
 }
 
 func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
-	conf := GetConfig(d.Connection)
-
 	command := d.EqualsQualString("command")
 	if command == "" {
 		// Empty command returns zero rows
@@ -90,98 +86,7 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 		}
 	*/
 
-	config := shared.ConnectionInfo{
-		Timeout: "10s",
-		Port:    22,
-	}
-
-	// Bastion settings
-	if conf.BastionUser != nil {
-		config.BastionUser = *conf.BastionUser
-	}
-	if conf.BastionPassword != nil {
-		config.BastionPassword = *conf.BastionPassword
-	}
-	if conf.BastionPrivateKey != nil {
-		config.BastionPrivateKey = *conf.BastionPrivateKey
-	}
-	if conf.BastionHost != nil {
-		config.BastionHost = *conf.BastionHost
-	}
-	if conf.BastionHostKey != nil {
-		config.BastionHostKey = *conf.BastionHostKey
-	}
-	if conf.BastionPort != nil {
-		config.BastionPort = uint16(*conf.BastionPort)
-	}
-
-	// PROXY settings
-	if conf.ProxyHost != nil {
-		config.ProxyHost = *conf.ProxyHost
-	}
-	if conf.ProxyPort != nil {
-		config.ProxyPort = uint16(*conf.ProxyPort)
-	}
-	if conf.ProxyUserName != nil {
-		config.ProxyUserName = *conf.ProxyUserName
-	}
-	if conf.ProxyUserPassword != nil {
-		config.ProxyUserPassword = *conf.ProxyUserPassword
-	} else {
-		if conf.ProxyUserName != nil {
-			return nil, errors.New("password is required when proxy username is set")
-		}
-	}
-
-	if conf.Protocol != nil {
-		config.Type = *conf.Protocol
-	} else {
-		return nil, errors.New("protocol is required in config")
-	}
-	if conf.Host != nil {
-		config.Host = *conf.Host
-	} else {
-		return nil, errors.New("host is required in config")
-	}
-	if conf.Port != nil {
-		config.Port = uint16(*conf.Port)
-	}
-	if conf.Https != nil {
-		config.HTTPS = *conf.Https
-	}
-	if conf.Insecure != nil {
-		config.Insecure = *conf.Insecure
-	}
-	if config.Type == "ssh" {
-		if conf.User != nil {
-			config.User = *conf.User
-		} else {
-			return nil, errors.New("user is required for SSH connections")
-		}
-		if conf.Password != nil {
-			config.Password = *conf.Password
-		} else if conf.PrivateKey != nil {
-			config.PrivateKey = *conf.PrivateKey
-		} else {
-			return nil, errors.New("password or private_key is required for SSH connections")
-		}
-	}
-	if config.Type == "winrm" {
-		if conf.User != nil {
-			config.User = *conf.User
-		} else {
-			return nil, errors.New("user is required for WinRM connections")
-		}
-		if conf.Password != nil {
-			config.Password = *conf.Password
-		} else {
-			return nil, errors.New("password is required for WinRM connections")
-		}
-	}
-
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "config", config)
-
-	comm, err := communicator.New(config)
+	comm, err := GetCommunicator(d.Connection)
 	if err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "command_error", err)
 		return nil, err
