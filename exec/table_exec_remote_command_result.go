@@ -3,6 +3,7 @@ package exec
 import (
 	"context"
 	"io"
+	"strings"
 	"sync"
 
 	"github.com/mitchellh/go-linereader"
@@ -17,11 +18,12 @@ import (
 func tableExecRemoteCommandResult(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "exec_remote_command_result",
-		Description: "Execute a command on the remote machine and return as a single row.",
+		Description: "Execute a command on the remote machine and return as a single row or line by line.",
 		List: &plugin.ListConfig{
 			Hydrate: listRemoteCommandResult,
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "command", Require: plugin.Required},
+				{Name: "line_by_line", Require: plugin.Optional},
 			},
 		},
 		Columns: []*plugin.Column{
@@ -29,6 +31,7 @@ func tableExecRemoteCommandResult(ctx context.Context) *plugin.Table {
 			{Name: "line", Type: proto.ColumnType_STRING, Description: "Line data."},
 			{Name: "stream", Type: proto.ColumnType_STRING, Description: "Stream the line was sent to, e.g. stdout or stderr."},
 			{Name: "line_number", Type: proto.ColumnType_INT, Description: "Line number within the stream."},
+			{Name: "line_by_line", Type: proto.ColumnType_BOOL, Transform: transform.FromQual("line_by_line"), Description: "Indicates whether to show each output line as a table row.", Default: false},
 			//{Name: "output", Type: proto.ColumnType_STRING, Description: "Output from the command (both stdout and stderr)."},
 			//{Name: "exit_code", Type: proto.ColumnType_INT, Description: "Exit code of the command."},
 			{Name: "command", Type: proto.ColumnType_STRING, Transform: transform.FromQual("command"), Description: "Command to be run."},
@@ -42,6 +45,8 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 		// Empty command returns zero rows
 		return nil, nil
 	}
+
+	isLineByLine := d.Quals.ToEqualsQualValueMap()["line_by_line"].GetBoolValue()
 
 	var cmd *remote.Cmd
 
@@ -62,13 +67,13 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, outR)
+		copyUIOutput3(ctx, d, outR, isLineByLine)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, errR)
+		copyUIOutput3(ctx, d, errR, isLineByLine)
 	}()
 
 	/*
@@ -181,15 +186,25 @@ func copyUIOutput2(ctx context.Context, d *plugin.QueryData, r io.Reader, doneCh
 	return nil
 }
 
-func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader) error {
+func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isLineByLine bool) error {
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 starting...")
-	lr := linereader.New(r)
-	i := 1
-	for line := range lr.Ch {
-		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3: "+line)
-		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: "stdout"})
-		i = i + 1
+
+	if isLineByLine {
+		lr := linereader.New(r)
+		i := 1
+		for line := range lr.Ch {
+			d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: "stdout"})
+			i = i + 1
+		}
+	} else {
+		buf := new(strings.Builder)
+		n, _ := io.Copy(buf, r)
+		if n == 0 {
+			return nil
+		}
+		d.StreamListItem(ctx, outputRow{Line: buf.String(), LineNumber: 1, Stream: "stdout"})
 	}
+
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 done")
 	return nil
 }
