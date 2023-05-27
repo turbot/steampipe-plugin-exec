@@ -3,10 +3,8 @@ package exec
 import (
 	"context"
 	"io"
-	"strings"
 	"sync"
 
-	"github.com/mitchellh/go-linereader"
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/remote"
 	"github.com/turbot/go-exec-communicator/shared"
@@ -173,60 +171,4 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	return nil, nil
 
-}
-
-func copyUIOutput2(ctx context.Context, d *plugin.QueryData, r io.Reader, doneCh chan<- struct{}) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 starting...")
-	defer close(doneCh)
-	lr := linereader.New(r)
-	i := 1
-	for line := range lr.Ch {
-		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: "stdout"})
-		i = i + 1
-		//o.Output(line)
-	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 done")
-	return nil
-}
-
-func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isLineByLine bool, isError bool) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 starting...")
-
-	stream := "stdout"
-	if isError {
-		stream = "stderr"
-	}
-
-	if isLineByLine {
-		lr := linereader.New(r)
-		i := 1
-		for line := range lr.Ch {
-			d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: stream})
-			i = i + 1
-		}
-	} else {
-		buf := new(strings.Builder)
-		n, _ := io.Copy(buf, r)
-		if n == 0 {
-			return nil
-		}
-		d.StreamListItem(ctx, outputRow{Line: buf.String(), LineNumber: 1, Stream: stream})
-	}
-
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 done")
-	return nil
-}
-
-func copyUIOutput4(ctx context.Context, d *plugin.QueryData, r io.Reader, wg *sync.WaitGroup) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 starting...")
-	defer wg.Done()
-	lr := linereader.New(r)
-	i := 1
-	for line := range lr.Ch {
-		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: "stdout"})
-		i = i + 1
-		//o.Output(line)
-	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 done")
-	return nil
 }
