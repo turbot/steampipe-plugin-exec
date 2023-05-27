@@ -91,10 +91,13 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 		}
 	*/
 
-	comm, err := GetCommunicator(d.Connection)
+	comm, _, isLocalConnection, err := GetCommunicator(d.Connection)
 	if err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "command_error", err)
 		return nil, err
+	}
+	if isLocalConnection {
+		return nil, nil
 	}
 
 	commandCtx := ctx // context.Background()

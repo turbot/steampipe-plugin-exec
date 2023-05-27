@@ -2,6 +2,7 @@ package exec
 
 import (
 	"errors"
+	"os/exec"
 
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/shared"
@@ -154,97 +155,125 @@ func GetConfig(connection *plugin.Connection) execConfig {
 }
 
 // GetCommunicator :: creates a communicator from config
-func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, error) {
+func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, *exec.Cmd, bool, error) {
 	conf := GetConfig(connection)
 
 	config := shared.ConnectionInfo{
 		Timeout: "10s",
-		Port:    22,
 	}
+
+	// If no other connection info is provided, assume local connection
+	localConnection := true
 
 	// Bastion settings
 	if conf.BastionUser != nil {
 		config.BastionUser = *conf.BastionUser
+		localConnection = false
 	}
 	if conf.BastionPassword != nil {
 		config.BastionPassword = *conf.BastionPassword
+		localConnection = false
 	}
 	if conf.BastionPrivateKey != nil {
 		config.BastionPrivateKey = *conf.BastionPrivateKey
+		localConnection = false
 	}
 	if conf.BastionHost != nil {
 		config.BastionHost = *conf.BastionHost
+		localConnection = false
 	}
 	if conf.BastionHostKey != nil {
 		config.BastionHostKey = *conf.BastionHostKey
+		localConnection = false
 	}
 	if conf.BastionPort != nil {
 		config.BastionPort = uint16(*conf.BastionPort)
+		localConnection = false
 	}
 
 	// PROXY settings
 	if conf.ProxyHost != nil {
 		config.ProxyHost = *conf.ProxyHost
+		localConnection = false
 	}
 	if conf.ProxyPort != nil {
 		config.ProxyPort = uint16(*conf.ProxyPort)
+		localConnection = false
 	}
 	if conf.ProxyUserName != nil {
 		config.ProxyUserName = *conf.ProxyUserName
+		localConnection = false
 	}
 	if conf.ProxyUserPassword != nil {
 		config.ProxyUserPassword = *conf.ProxyUserPassword
+		localConnection = false
 	} else {
 		if conf.ProxyUserName != nil {
-			return nil, errors.New("password is required when proxy username is set")
+			return nil, nil, localConnection, errors.New("password is required when proxy username is set")
 		}
 	}
 
 	if conf.Protocol != nil {
 		config.Type = *conf.Protocol
+		localConnection = false
 	} else {
-		return nil, errors.New("protocol is required in config")
+		if !localConnection {
+			return nil, nil, localConnection, errors.New("protocol is required in config")
+		}
 	}
 	if conf.Host != nil {
 		config.Host = *conf.Host
+		localConnection = false
 	} else {
-		return nil, errors.New("host is required in config")
+		if !localConnection {
+			return nil, nil, localConnection, errors.New("host is required in config")
+		}
 	}
 	if conf.Port != nil {
 		config.Port = uint16(*conf.Port)
+		localConnection = false
 	}
 	if conf.Https != nil {
 		config.HTTPS = *conf.Https
+		localConnection = false
 	}
 	if conf.Insecure != nil {
 		config.Insecure = *conf.Insecure
+		localConnection = false
 	}
 	if config.Type == "ssh" {
+		localConnection = false
 		if conf.User != nil {
 			config.User = *conf.User
 		} else {
-			return nil, errors.New("user is required for SSH connections")
+			return nil, nil, localConnection, errors.New("user is required for SSH connections")
 		}
 		if conf.Password != nil {
 			config.Password = *conf.Password
 		} else if conf.PrivateKey != nil {
 			config.PrivateKey = *conf.PrivateKey
 		} else {
-			return nil, errors.New("password or private_key is required for SSH connections")
+			return nil, nil, localConnection, errors.New("password or private_key is required for SSH connections")
 		}
 	}
 	if config.Type == "winrm" {
+		localConnection = false
 		if conf.User != nil {
 			config.User = *conf.User
 		} else {
-			return nil, errors.New("user is required for WinRM connections")
+			return nil, nil, localConnection, errors.New("user is required for WinRM connections")
 		}
 		if conf.Password != nil {
 			config.Password = *conf.Password
 		} else {
-			return nil, errors.New("password is required for WinRM connections")
+			return nil, nil, localConnection, errors.New("password is required for WinRM connections")
 		}
 	}
 
-	return communicator.New(config)
+	if localConnection {
+		return nil, nil, localConnection, nil
+	}
+
+	comm, err := communicator.New(config)
+	return comm, nil, localConnection, err
 }
