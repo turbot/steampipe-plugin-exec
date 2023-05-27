@@ -19,6 +19,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"exec_local_command":         tableExecLocalCommand(ctx),
 			"exec_local_command_result":  tableExecLocalCommandResult(ctx),
 			"exec_remote_command_result": tableExecRemoteCommandResult(ctx),
+			"exec_command_line":          tableExecCommandLine(ctx),
 		},
 	}
 	return p
