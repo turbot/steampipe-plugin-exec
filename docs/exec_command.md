@@ -15,6 +15,12 @@ select * from ubuntu.exec_command where command = 'ls -la'
 select * from windows.exec_command where command = 'dir'
 ```
 
+### Query JSON files on Linux hosts
+
+```sql
+select output::jsonb -> 'core' ->> 'url' jekins_war_url from pub.exec_command where command = 'cat jenkins-default.json'
+```
+
 ### Query package.json dependencies on multiple hosts
 
 ```sql
@@ -34,6 +40,19 @@ where
 ```sql
 select * from ubuntu.exec_command where command = 'lsblk'
 ```
+
+### List disks of Linux hosts
+
+```sql
+select * from ubuntu.exec_command where command = 'df -h' order by _ctx ->> 'connection_name'
+```
+
+### List local disks on a Mac OSX
+
+```sql
+select * from exec_local.exec_command where command = 'diskutil list'
+```
+
 
 ### List Linux users accounts
 
