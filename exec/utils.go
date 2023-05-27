@@ -134,7 +134,7 @@ func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isLine
 }
 
 func copyUIOutput4(ctx context.Context, d *plugin.QueryData, r io.Reader, wg *sync.WaitGroup) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 starting...")
+	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput4 starting...")
 	defer wg.Done()
 	lr := linereader.New(r)
 	i := 1
@@ -143,6 +143,25 @@ func copyUIOutput4(ctx context.Context, d *plugin.QueryData, r io.Reader, wg *sy
 		i = i + 1
 		//o.Output(line)
 	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 done")
+	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput4 done")
+	return nil
+}
+
+func copyUIOutput5(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
+	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput5 starting...")
+
+	exitCode := 0
+	if isError {
+		exitCode = 1
+	}
+
+	buf := new(strings.Builder)
+	n, _ := io.Copy(buf, r)
+	if n == 0 {
+		return nil
+	}
+	d.StreamListItem(ctx, commandResult{Output: buf.String(), ExitCode: exitCode})
+
+	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput5 done")
 	return nil
 }
