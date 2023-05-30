@@ -65,3 +65,39 @@ select * from ubuntu.exec_command where command = 'cat /etc/passwd'
 ```sql
 select output, _ctx->>'connection_name' AS host from ubuntu.exec_command where command = 'cat /etc/hosts'
 ```
+
+### List processes on Linux hosts
+
+```sql
+select * from ubuntu.exec_command where command = 'ps -ef' order by _ctx ->> 'connection_name'
+```
+
+### List local processes
+
+```sql
+select * from exec_local.exec_command where command = 'ps -ef'
+```
+
+### List processes on Windows hosts
+
+```sql
+select * from windows.exec_command where command = 'tasklist' order by _ctx ->> 'connection_name'
+```
+
+### List logged in users on Linux hosts
+
+```sql
+select * from ubuntu.exec_command where command = 'w' order by _ctx ->> 'connection_name'
+```
+
+### Show hardware information on Linux hosts
+
+```sql
+select * from ubuntu.exec_command where command = 'lshw' order by _ctx ->> 'connection_name'
+```
+
+### Show hardware information on Windows hosts
+
+```sql
+select * from windows.exec_command where command = 'wmic computersystem get model,name,manufacturer,systemtype' order by _ctx ->> 'connection_name'
+```
