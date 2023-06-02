@@ -32,6 +32,11 @@ type commandResult struct {
 	ExitCode int    `json:"exit_code"`
 }
 
+type commandLineResult struct {
+	Output   []string `json:"output"`
+	ExitCode int      `json:"exit_code"`
+}
+
 func listLocalCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
 	cmd, err := prepareCommand(ctx, d, h)

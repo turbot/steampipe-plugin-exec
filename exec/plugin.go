@@ -23,6 +23,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"exec_command":               tableExecCommand(ctx),
 			"exec_command_line":          tableExecCommandLine(ctx),
 			"exec_run":                   tableExecRun(ctx),
+			"exec_cmd":                   tableExecCmd(ctx),
 		},
 	}
 	return p

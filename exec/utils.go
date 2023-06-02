@@ -165,3 +165,25 @@ func copyUIOutput5(ctx context.Context, d *plugin.QueryData, r io.Reader, isErro
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput5 done")
 	return nil
 }
+
+func copyUIOutput6(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
+	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput6 starting...")
+	exitCode := 0
+	if isError {
+		exitCode = 1
+	}
+
+	outputLines := []string{}
+	lr := linereader.New(r)
+	for line := range lr.Ch {
+		outputLines = append(outputLines, line)
+	}
+	if len(outputLines) == 0 {
+		return nil
+	}
+	d.StreamListItem(ctx, commandLineResult{
+		Output:   outputLines,
+		ExitCode: exitCode,
+	})
+	return nil
+}
