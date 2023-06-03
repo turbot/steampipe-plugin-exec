@@ -4,21 +4,16 @@ Execute a command locally or on a remote machine and return as a single row.
 
 ## Examples
 
-### List files on multiple Linux hosts
-
-```sql
-select * from ubuntu.exec_command where command = 'ls -la'
-```
-### List files on Windows hosts
-
-```sql
-select * from windows.exec_command where command = 'dir'
-```
-
 ### Query JSON files on Linux hosts
 
 ```sql
-select output::jsonb -> 'core' ->> 'url' jekins_war_url from pub.exec_command where command = 'cat jenkins-default.json'
+select
+  _ctx ->> 'connection_name' as host,
+  output::jsonb -> 'core' ->> 'url' as jekins_war_url
+from
+  ubuntu.exec_command
+where
+  command = 'cat jenkins-default.json';
 ```
 
 ### Query package.json dependencies on multiple hosts
@@ -35,69 +30,86 @@ where
   command = 'cat package.json';
 ```
 
+### List files on multiple Linux hosts
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  ubuntu.exec_command 
+where
+  command = 'ls -la';
+```
+
 ### List Linux devices
 
 ```sql
-select * from ubuntu.exec_command where command = 'lsblk'
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  ubuntu.exec_command
+where
+  command = 'lsblk';
 ```
 
 ### List disks of Linux hosts
 
 ```sql
-select * from ubuntu.exec_command where command = 'df -h' order by _ctx ->> 'connection_name'
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  ubuntu.exec_command
+where
+  command = 'df -h';
 ```
-
-### List local disks on a Mac OSX
-
-```sql
-select * from exec_local.exec_command where command = 'diskutil list'
-```
-
 
 ### List Linux users accounts
 
 ```sql
-select * from ubuntu.exec_command where command = 'cat /etc/passwd'
+select
+  _ctx ->> 'connection_name' as host,
+  output 
+from
+  ubuntu.exec_command 
+where
+  command = 'cat /etc/passwd';
 ```
 
 ### Query Linux host files on multiple hosts
 
 ```sql
-select output, _ctx->>'connection_name' AS host from ubuntu.exec_command where command = 'cat /etc/hosts'
+select
+  output,
+  _ctx ->> 'connection_name' as host 
+from
+  ubuntu.exec_command 
+where
+  command = 'cat /etc/hosts';
 ```
 
 ### List processes on Linux hosts
 
 ```sql
-select * from ubuntu.exec_command where command = 'ps -ef' order by _ctx ->> 'connection_name'
-```
-
-### List local processes
-
-```sql
-select * from exec_local.exec_command where command = 'ps -ef'
-```
-
-### List processes on Windows hosts
-
-```sql
-select * from windows.exec_command where command = 'tasklist' order by _ctx ->> 'connection_name'
-```
-
-### List logged in users on Linux hosts
-
-```sql
-select * from ubuntu.exec_command where command = 'w' order by _ctx ->> 'connection_name'
+select
+  _ctx ->> 'connection_name' as host,
+  output 
+from
+  ubuntu.exec_command 
+where
+  command = 'ps -ef';
 ```
 
 ### Show hardware information on Linux hosts
 
 ```sql
-select * from ubuntu.exec_command where command = 'lshw' order by _ctx ->> 'connection_name'
-```
-
-### Show hardware information on Windows hosts
-
-```sql
-select * from windows.exec_command where command = 'wmic computersystem get model,name,manufacturer,systemtype' order by _ctx ->> 'connection_name'
+select
+  _ctx ->> 'connection_name' as host,
+  output 
+from
+  ubuntu.exec_command 
+where
+  command = 'lshw';
 ```
