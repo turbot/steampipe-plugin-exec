@@ -135,7 +135,10 @@ from
     from
       ubuntu.exec_command_line 
     where
-      command = 'cat /etc/passwd' 
+      command = 'cat /etc/passwd'
+    order by
+      _ctx ->> 'connection_name',
+      line_number
   )
   subquery;
 ```
