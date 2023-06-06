@@ -20,9 +20,9 @@ where
 
 ```sql
 SELECT
+  _ctx->>'connection_name' AS host,
   dep.key AS dependency,
-  dep.value AS version,
-  _ctx->>'connection_name' AS host
+  dep.value AS version
 FROM
   ubuntu.exec_command,
   json_each_text(output::json->'dependencies') AS dep(key, value)
