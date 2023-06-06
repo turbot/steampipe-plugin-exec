@@ -114,3 +114,28 @@ order by
   _ctx ->> 'connection_name',
   line_number;
 ```
+
+### List Linux users accounts by parsing /etc/passwd into columns
+
+```sql
+select
+  host,
+  split_output[1] as username,
+  case when split_output[2] = 'x' then true else false end as has_password, 
+  split_output[3] as user_id, 
+  split_output[4] as group_id, 
+  split_output[5] as user_comment, 
+  split_output[6] as home_directory, 
+  split_output[7] as shell 
+from
+  (
+    select
+      _ctx ->> 'connection_name' as host,
+      string_to_array(line, ':') as split_output 
+    from
+      ubuntu.exec_command_line 
+    where
+      command = 'cat /etc/passwd' 
+  )
+  subquery;
+```
