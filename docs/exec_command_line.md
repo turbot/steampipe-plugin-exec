@@ -142,3 +142,30 @@ from
   )
   subquery;
 ```
+
+### List elevated commands ran on Linux hosts (/var/log/auth.log)
+Ref: https://regex101.com/r/ImwoFl/3
+
+```sql
+select
+  matches[1] as month,
+  matches[2] as day,
+  matches[3] as hour,
+  matches[4] as hostname,
+  matches[7] as pwd,
+  matches[8] as elevated_user,
+  matches[9] as command 
+from
+  (
+    select
+      regexp_matches(line, '^(\S{3})? {1,2}(\S+) (\S+) (\S+) (.+?(?=\[)|.+?(?=))[^a-zA-Z0-9](\d{1,7}|)[^a-zA-Z0-9]{1,3}PWD=([^ ]+) ; USER=([^ ]+) ; COMMAND=(.*)$') as matches 
+    from
+      staging.exec_command_line 
+    where
+      command = 'cat /var/log/auth.log' 
+    order by
+      _ctx ->> 'connection_name',
+      line_number 
+  )
+  subquery;
+```
