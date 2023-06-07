@@ -112,13 +112,37 @@ from
   (
     select
       _ctx ->> 'connection_name' as host,
-      string_to_array(unnest(string_to_array(output, E'\n')), ':') as split_output
+      string_to_array(unnest(string_to_array(output, E'\n')), ':') as split_output 
     from
       ubuntu.exec_command
     where
       command = 'cat /etc/passwd'
     order by
       _ctx ->> 'connection_name'
+  )
+  subquery;
+```
+
+### List elevated commands ran on Linux hosts (/var/log/auth.log)
+Ref: https://regex101.com/r/ImwoFl/3
+
+```sql
+select
+  matches[1] as month,
+  matches[2] as day,
+  matches[3] as hour,
+  matches[4] as hostname,
+  matches[7] as pwd,
+  matches[8] as elevated_user,
+  matches[9] as command 
+from
+  (
+    select
+      regexp_matches(unnest(string_to_array(output, e'\n')), '^(\S{3})? {1,2}(\S+) (\S+) (\S+) (.+?(?=\[)|.+?(?=))[^a-zA-Z0-9](\d{1,7}|)[^a-zA-Z0-9]{1,3}PWD=([^ ]+) ; USER=([^ ]+) ; COMMAND=(.*)$') as matches 
+    from
+      pub.exec_command 
+    where
+      command = 'cat /var/log/auth.log' 
   )
   subquery;
 ```
