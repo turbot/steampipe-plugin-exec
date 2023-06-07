@@ -146,3 +146,23 @@ from
   )
   subquery;
 ```
+
+### List /etc/login.defs settings on Linux hosts
+
+```sql
+select
+  host,
+  matches[1] as option,
+  matches[2] as setting
+from
+  (
+    select
+      _ctx ->> 'connection_name' as host,
+      regexp_matches(unnest(string_to_array(output, '\n')), '^(\S+)\s+(\S+)') as matches
+    from
+      ubuntu.exec_command 
+    where
+      command = 'grep -vE ''^($|#)'' /etc/login.defs' 
+  )
+  subquery;
+```
