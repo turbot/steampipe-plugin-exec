@@ -17,7 +17,7 @@ does not apply
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  regexp_split_to_table(output, E'\n') as line
+  regexp_split_to_table(output, '\n') as line
 from
   ubuntu.exec_command 
 where
@@ -29,7 +29,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  regexp_split_to_table(output, E'\n') as line
+  regexp_split_to_table(output, '\n') as line
 from
   ubuntu.exec_command
 where
@@ -41,7 +41,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  regexp_split_to_table(output, E'\n') as line
+  regexp_split_to_table(output, '\n') as line
 from
   ubuntu.exec_command
 where
@@ -53,7 +53,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  regexp_split_to_table(output, E'\n') as line 
+  regexp_split_to_table(output, '\n') as line 
 from
   ubuntu.exec_command 
 where
@@ -64,7 +64,7 @@ where
 
 ```sql
 select
-  regexp_split_to_table(output, E'\n') as line,
+  regexp_split_to_table(output, '\n') as line,
   _ctx ->> 'connection_name' as host 
 from
   ubuntu.exec_command 
@@ -77,7 +77,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  regexp_split_to_table(output, E'\n') as line 
+  regexp_split_to_table(output, '\n') as line 
 from
   ubuntu.exec_command 
 where
@@ -89,7 +89,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  regexp_split_to_table(output, E'\n') as line 
+  regexp_split_to_table(output, '\n') as line 
 from
   ubuntu.exec_command 
 where
@@ -112,7 +112,7 @@ from
   (
     select
       _ctx ->> 'connection_name' as host,
-      string_to_array(unnest(string_to_array(output, E'\n')), ':') as split_output 
+      string_to_array(unnest(string_to_array(output, '\n')), ':') as split_output 
     from
       ubuntu.exec_command
     where
@@ -138,9 +138,9 @@ select
 from
   (
     select
-      regexp_matches(unnest(string_to_array(output, e'\n')), '^(\S{3})? {1,2}(\S+) (\S+) (\S+) (.+?(?=\[)|.+?(?=))[^a-zA-Z0-9](\d{1,7}|)[^a-zA-Z0-9]{1,3}PWD=([^ ]+) ; USER=([^ ]+) ; COMMAND=(.*)$') as matches 
+      regexp_matches(unnest(string_to_array(output, E'\n')), '^(\S{3})? {1,2}(\S+) (\S+) (\S+) (.+?(?=\[)|.+?(?=))[^a-zA-Z0-9](\d{1,7}|)[^a-zA-Z0-9]{1,3}PWD=([^ ]+) ; USER=([^ ]+) ; COMMAND=(.*)$') as matches 
     from
-      pub.exec_command 
+      staging.exec_command 
     where
       command = 'cat /var/log/auth.log' 
   )
