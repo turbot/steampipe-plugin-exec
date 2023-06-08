@@ -61,13 +61,13 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, outR, true, false)
+		copyUIOutput3(ctx, d, outR, false)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, errR, true, true)
+		copyUIOutput3(ctx, d, errR, true)
 	}()
 
 	commandCtx := ctx // context.Background()

@@ -105,7 +105,7 @@ func copyUIOutput2(ctx context.Context, d *plugin.QueryData, r io.Reader, doneCh
 	return nil
 }
 
-func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isLineByLine bool, isError bool) error {
+func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 starting...")
 
 	stream := "stdout"
@@ -113,20 +113,11 @@ func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isLine
 		stream = "stderr"
 	}
 
-	if isLineByLine {
-		lr := linereader.New(r)
-		i := 1
-		for line := range lr.Ch {
-			d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: stream})
-			i = i + 1
-		}
-	} else {
-		buf := new(strings.Builder)
-		n, _ := io.Copy(buf, r)
-		if n == 0 {
-			return nil
-		}
-		d.StreamListItem(ctx, outputRow{Line: buf.String(), LineNumber: 1, Stream: stream})
+	lr := linereader.New(r)
+	i := 1
+	for line := range lr.Ch {
+		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: stream})
+		i = i + 1
 	}
 
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 done")

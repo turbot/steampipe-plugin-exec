@@ -21,7 +21,6 @@ func tableExecRemoteCommandResult(ctx context.Context) *plugin.Table {
 			Hydrate: listRemoteCommandResult,
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "command", Require: plugin.Required},
-				{Name: "line_by_line", Require: plugin.Optional},
 			},
 		},
 		Columns: []*plugin.Column{
@@ -29,7 +28,6 @@ func tableExecRemoteCommandResult(ctx context.Context) *plugin.Table {
 			{Name: "line", Type: proto.ColumnType_STRING, Description: "Line data."},
 			{Name: "stream", Type: proto.ColumnType_STRING, Description: "Stream the line was sent to, e.g. stdout or stderr."},
 			{Name: "line_number", Type: proto.ColumnType_INT, Description: "Line number within the stream."},
-			{Name: "line_by_line", Type: proto.ColumnType_BOOL, Transform: transform.FromQual("line_by_line"), Description: "Indicates whether to show each output line as a table row.", Default: false},
 			//{Name: "output", Type: proto.ColumnType_STRING, Description: "Output from the command (both stdout and stderr)."},
 			//{Name: "exit_code", Type: proto.ColumnType_INT, Description: "Exit code of the command."},
 			{Name: "command", Type: proto.ColumnType_STRING, Transform: transform.FromQual("command"), Description: "Command to be run."},
@@ -43,8 +41,6 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 		// Empty command returns zero rows
 		return nil, nil
 	}
-
-	isLineByLine := d.Quals.ToEqualsQualValueMap()["line_by_line"].GetBoolValue()
 
 	var cmd *remote.Cmd
 
@@ -65,13 +61,13 @@ func listRemoteCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, outR, isLineByLine, false)
+		copyUIOutput3(ctx, d, outR, false)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, errR, isLineByLine, true)
+		copyUIOutput3(ctx, d, errR, true)
 	}()
 
 	/*
