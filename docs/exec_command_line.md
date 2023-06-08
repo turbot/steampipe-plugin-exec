@@ -192,3 +192,28 @@ from
   )
   subquery;
 ```
+
+### List installed packages on Debian hosts
+
+```sql
+select
+  host,
+  matches[1] as option,
+  matches[2] as setting
+from
+  (
+    select
+      _ctx ->> 'connection_name' as host,
+      regexp_matches(line, '^(\\S+)\\h(\\S+)\\h(\\S+)\\h(.*)') as matches
+    from
+      staging.exec_command_line 
+    where
+      command = 'apt list --installed' 
+    order by
+      host,
+      line_number
+    limit 20
+  )
+  subquery;
+```
+ 

@@ -113,3 +113,29 @@ from
 where
   command = 'lshw';
 ```
+
+### Query configuration file for rsyslog on Linux hosts
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  ubuntu.exec_command
+where
+  command = 'cat /etc/rsyslog.conf';
+```
+
+### Query Linux host IP addresses
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  ubuntu.exec_command
+where
+  command = 'ip addr'
+order by
+  host;
+```
