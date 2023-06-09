@@ -26,19 +26,19 @@ connection "exec_local" {
 }
 ```
 
-#### Remote Linux connection through SSH with password
+#### Remote Linux connection through SSH with private key
 
 ```hcl
 connection "exec_remote_linux" {
   plugin = "exec"
-  
+
   host = "my-remote-linux-host"
   user = "my-username"
-  password = "my-password"
+  private_key = "~/.ssh/my-remote-linux-host.pem"
 }
 ```
 
-#### Remote Linux connection through SSH with private key
+#### Remote Linux connection through SSH with in-file private key
 
 ```hcl
 connection "exec_remote_linux" {
@@ -51,6 +51,18 @@ connection "exec_remote_linux" {
 ... snipped ...
 -----END RSA PRIVATE KEY-----
 EOK
+}
+```
+
+#### Remote Linux connection through SSH with password
+
+```hcl
+connection "exec_remote_linux" {
+  plugin = "exec"
+  
+  host = "my-remote-linux-host"
+  user = "my-username"
+  password = "my-password"
 }
 ```
 
@@ -93,20 +105,12 @@ connection "production" {
   protocol = "ssh"
   host = "172.31.40.195"
   user = "ubuntu"
-  private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  private_key = "~/.ssh/my-remote-linux-host.pem"
   
   bastion_user = "ubuntu"
   bastion_host = "52.67.221.206"
   bastion_port = 22
-  bastion_private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  bastion_private_key = "~/.ssh/my-bastion-host.pem"
 }
 ```
 
@@ -119,11 +123,8 @@ connection "staging" {
   protocol = "ssh"
   host = "52.67.221.206"
   user = "ubuntu"
-  private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  private_key = "~/.ssh/my-remote-linux-host.pem"
+
   proxy_host = "10.10.10.200"
   proxy_port = 8080
   proxy_user_name = "luis"
@@ -140,20 +141,12 @@ connection "production" {
   protocol = "ssh"
   host = "172.31.40.195"
   user = "ubuntu"
-  private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  private_key = "~/.ssh/my-remote-linux-host.pem"
 
   bastion_user = "ubuntu"
   bastion_host = "52.67.221.206"
   bastion_port = 22
-  bastion_private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  bastion_private_key = "~/.ssh/my-bastion-host.pem"
 
   proxy_host = "10.10.10.200"
   proxy_port = 8080

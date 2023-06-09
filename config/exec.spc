@@ -27,12 +27,10 @@ connection "exec_linux" {
   user = "ubuntu"
 
   # Credentials, either password or private_key.
-  password = "my_password"
-  private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  # password = "my_password"
+
+  # private_key can be either a path to a private key file or the private key itself.
+  private_key = "~/.ssh/my-remote-linux-host.pem"
 
   # Optional - Proxy settings
   # Enables the plugin to connect to host through a HTTP proxy.
@@ -51,11 +49,7 @@ EOK
   # bastion_host = "52.67.108.24"
   # bastion_port = 22
   # bastion_password = "my_password"
-  # bastion_private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
+  # bastion_private_key = "~/.ssh/my-bastion-host.pem"
 
 }
 
