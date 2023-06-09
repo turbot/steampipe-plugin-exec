@@ -2,8 +2,11 @@ package exec
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"os/exec"
 
+	"github.com/mitchellh/go-homedir"
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/shared"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -166,21 +169,26 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 	localConnection := true
 
 	// Bastion settings
-	if conf.BastionUser != nil {
-		config.BastionUser = *conf.BastionUser
-		localConnection = false
-	}
-	if conf.BastionPassword != nil {
-		config.BastionPassword = *conf.BastionPassword
-		localConnection = false
-	}
-	if conf.BastionPrivateKey != nil {
-		config.BastionPrivateKey = *conf.BastionPrivateKey
-		localConnection = false
-	}
 	if conf.BastionHost != nil {
 		config.BastionHost = *conf.BastionHost
 		localConnection = false
+
+		if conf.BastionUser != nil {
+			config.BastionUser = *conf.BastionUser
+		} else {
+			return nil, nil, localConnection, errors.New("bastion_user is required when using bastion host")
+		}
+		if conf.BastionPassword != nil {
+			config.BastionPassword = *conf.BastionPassword
+		} else if conf.BastionPrivateKey != nil {
+			content, err := PathOrContents(*conf.BastionPrivateKey)
+			if err != nil {
+				return nil, nil, localConnection, err
+			}
+			config.BastionPrivateKey = content
+		} else {
+			return nil, nil, localConnection, errors.New("either bastion_password or bastion_private_key is required when using bastion host")
+		}
 	}
 	if conf.BastionHostKey != nil {
 		config.BastionHostKey = *conf.BastionHostKey
@@ -251,9 +259,13 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		if conf.Password != nil {
 			config.Password = *conf.Password
 		} else if conf.PrivateKey != nil {
-			config.PrivateKey = *conf.PrivateKey
+			content, err := PathOrContents(*conf.PrivateKey)
+			if err != nil {
+				return nil, nil, localConnection, err
+			}
+			config.PrivateKey = content
 		} else {
-			return nil, nil, localConnection, errors.New("password or private_key is required for SSH connections")
+			return nil, nil, localConnection, errors.New("either password or private_key is required for SSH connections")
 		}
 	}
 	if config.Type == "winrm" {
@@ -276,4 +288,37 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 
 	comm, err := communicator.New(config)
 	return comm, nil, localConnection, err
+}
+
+// PathOrContents :: returns the contents of a file if the parameter is a file path, otherwise returns the parameter itself
+func PathOrContents(poc string) (string, error) {
+	if len(poc) == 0 {
+		return poc, nil
+	}
+
+	path := poc
+	if path[0] == '~' {
+		var err error
+		path, err = homedir.Expand(path)
+		if err != nil {
+			return path, err
+		}
+	}
+
+	// Check for valid file path
+	if _, err := os.Stat(path); err == nil {
+		contents, err := os.ReadFile(path)
+		if err != nil {
+			return string(contents), err
+		}
+		return string(contents), nil
+	}
+
+	// Return error if content is a file path and the file doesn't exist
+	if len(path) > 1 && (path[0] == '/' || path[0] == '\\') {
+		return "", fmt.Errorf("%s: no such file or dir", path)
+	}
+
+	// Return the inline content
+	return poc, nil
 }

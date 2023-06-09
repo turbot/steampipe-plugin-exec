@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-linereader v0.0.0-20190213213312-1b945b3263eb
 	github.com/turbot/go-exec-communicator v0.0.0-20230412124734-9374347749b6
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.4.1
@@ -73,7 +74,6 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
-	github.com/mitchellh/go-homedir v1.0.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
