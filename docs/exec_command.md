@@ -139,3 +139,39 @@ where
 order by
   host;
 ```
+
+### List files on Windows hosts
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  windows.exec_remote_command 
+where
+  command = 'dir';
+```
+
+### List network info on Windows hosts
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  output 
+from
+  windows.exec_remote_command 
+where
+  command = 'ipconfig /all';
+```
+
+### List local disks on a Mac OSX
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  output
+from
+  exec_local.exec_remote_command 
+where
+  command = 'diskutil list';
+```

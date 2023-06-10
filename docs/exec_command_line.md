@@ -4,13 +4,6 @@ Execute a command on a local or remote machine and return as line by line.
 
 ## Examples
 
-### Query JSON files on Linux hosts
-
-Use exec_command instead.
-### Query package.json dependencies on multiple hosts
-
-Use exec_command instead.
-
 ### List files on multiple Linux hosts
 
 ```sql
@@ -55,6 +48,7 @@ order by
   _ctx ->> 'connection_name',
   line_number;
 ```
+
 ### List Linux users accounts
 
 ```sql
