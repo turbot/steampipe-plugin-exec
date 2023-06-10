@@ -32,6 +32,7 @@ connection "exec_linux" {
   # private_key can be either a path to a private key file or the private key itself.
   private_key = "~/.ssh/my-remote-linux-host.pem"
 
+
   # Optional - Proxy settings
   # Enables the plugin to connect to host through a HTTP proxy.
   # If username and password are not set, then it will try to connect to the proxy without authentication.
@@ -50,10 +51,13 @@ connection "exec_linux" {
   # bastion_port = 22
   # bastion_password = "my_password"
   # bastion_private_key = "~/.ssh/my-bastion-host.pem"
-
 }
 
 # Defines a remote connection to a Windows host
+# The Windows host must have WinRM enabled and configured.
+# You can check links bellow for more information on how to configure WinRM:
+# https://learn.microsoft.com/en-us/windows/win32/winrm/installation-and-configuration-for-windows-remote-management
+# https://learn.microsoft.com/en-us/troubleshoot/windows-client/system-management-components/configure-winrm-for-https
 connection "exec_windows" {
   plugin = "exec"
 
