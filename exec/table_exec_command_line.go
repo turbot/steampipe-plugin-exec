@@ -36,7 +36,7 @@ func tableExecCommandLine(ctx context.Context) *plugin.Table {
 func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	comm, _, isLocalConnection, err := GetCommunicator(d.Connection)
 	if err != nil {
-		plugin.Logger(ctx).Error("listRemoteCommandResult", "command_error", err)
+		plugin.Logger(ctx).Error("listRemoteCommandResult", "init", "command_error", err)
 		return nil, err
 	}
 	if isLocalConnection {
@@ -105,14 +105,14 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Start...")
 	if err := comm.Start(cmd); err != nil {
-		plugin.Logger(ctx).Error("listRemoteCommandResult", "command_error", err)
+		plugin.Logger(ctx).Error("listRemoteCommandResult", "comm.Start", "command_error", err)
 		return nil, err
 	}
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Start done")
 
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Wait...")
 	if err := cmd.Wait(); err != nil {
-		plugin.Logger(ctx).Error("listRemoteCommandResult", "command_error", err)
+		plugin.Logger(ctx).Error("listRemoteCommandResult", "comm.Wait", "command_error", err)
 		if e, ok := err.(*remote.ExitError); ok {
 			result.ExitCode = e.ExitStatus
 		}
