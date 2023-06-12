@@ -154,3 +154,37 @@ connection "production" {
   proxy_user_password = "c@v41c@nt3"
 }
 ```
+
+#### Remote connection to multiple hosts
+
+Here we are using **[aggregators](https://steampipe.io/docs/managing/connections#using-aggregators)** to run the same query on multiple hosts. The `staging_servers` connection is an aggregator connection that will run the same query on all connections that match the `*-staging` pattern. The `server1-staging` and `server2-staging` connections are the actual connections to the remote hosts.
+
+So, for example, if you run `steampipe query "select * from staging_servers.exec_command where command = 'uname -a';"` it will run the query on both `server1-staging` and `server2-staging` connections.
+
+You can still run queries on individual connections, for example `steampipe query "select * from server1-staging.exec_command where command = 'uname -a';"` will only run the query on `server1-staging`.
+
+```hcl
+connection "staging_servers" {
+  plugin = "exec"
+  
+  type = "aggregator"
+  connections = [ "*-staging" ]
+}
+
+connection "server1-staging" {
+  plugin = "exec"
+
+  host = "my-remote-linux-host"
+  user = "my-username"
+  private_key = "~/.ssh/my-remote-linux-host.pem"
+}
+
+connection "server2-staging" {
+  plugin = "exec"
+
+  host = "my-remote-linux-host"
+  user = "my-username"
+  private_key = "~/.ssh/my-remote-linux-host.pem"
+}
+```
+
