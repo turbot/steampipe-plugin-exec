@@ -12,7 +12,57 @@ og_image: "/images/plugins/turbot/exec-social-graphic.png"
 
 # Exec + Steampipe
 
-TODO
+Command can be anything that can be run on the command line. This includes shell commands, scripts, and binaries.
+
+[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
+
+For example:
+
+```sql
+select
+  output
+from
+  exec_command 
+where
+  command = 'df -h';
+```
+
+```
++------------------------------------------------------+
+| output                                               |
++------------------------------------------------------+
+| Filesystem      Size  Used Avail Use% Mounted on     |
+| /dev/root       7.6G  3.4G  4.3G  44% /              |
+| tmpfs           483M     0  483M   0% /dev/shm       |
+| tmpfs           194M  872K  193M   1% /run           |
+| tmpfs           5.0M     0  5.0M   0% /run/lock      |
+| /dev/xvda15     105M  5.3M  100M   5% /boot/efi      |
+| tmpfs            97M  4.0K   97M   1% /run/user/1001 |
++------------------------------------------------------+
+```
+
+## Documentation
+
+- **[Table definitions & examples →](/plugins/turbot/exec/tables)**
+
+## Get started
+
+### Install
+
+Download and install the latest Exec plugin:
+
+```bash
+steampipe plugin install exec
+```
+
+### Credentials
+
+| Item        | Description                                                                                                                                                                                                                   |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Credentials | Local connection does not require credentials. For Linux remote connections, the plugin supports SSH private key authentication or password. For Windows remote connections, the plugin supports password authentication.     |
+| Permissions | As the connection to host relies on SSH or WinRM, the user must have the necessary permissions to connect to the host.                                                                                                        |
+| Radius      | Each connection represents a single Exec Installation.                                                                                                                                                                        |
+| Resolution  | 1. With configuration provided in connection in steampipe _**.spc**_ config file.<br />2. An exec.yaml file in a .exec folder in the current user's home directory _**(~/.exec/exec.yaml or %userprofile\.exec\exec.yaml)**_. |
 
 ### Configuration
 
@@ -188,3 +238,7 @@ connection "server2-staging" {
 }
 ```
 
+## Get involved
+
+- Open source: https://github.com/turbot/steampipe-plugin-jenkins
+- Community: [Slack Channel](https://steampipe.io/community/join)
