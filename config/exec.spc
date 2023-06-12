@@ -1,3 +1,5 @@
+# Examples of common connections configurations can be found at: https://hub.steampipe.io/plugins/turbot/exec
+
 # Defines a local connection
 connection "exec_local" {
   plugin = "exec"
