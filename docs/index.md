@@ -26,7 +26,7 @@ connection "exec_local" {
 }
 ```
 
-#### Remote Linux connection through SSH with private key
+#### Remote Linux connection through SSH
 
 ```hcl
 connection "exec_remote_linux" {
@@ -35,34 +35,6 @@ connection "exec_remote_linux" {
   host = "my-remote-linux-host"
   user = "my-username"
   private_key = "~/.ssh/my-remote-linux-host.pem"
-}
-```
-
-#### Remote Linux connection through SSH with in-file private key
-
-```hcl
-connection "exec_remote_linux" {
-  plugin = "exec"
-
-  host = "my-remote-linux-host"
-  user = "my-username"
-  private_key = <<EOK
------BEGIN RSA PRIVATE KEY-----
-... snipped ...
------END RSA PRIVATE KEY-----
-EOK
-}
-```
-
-#### Remote Linux connection through SSH with password
-
-```hcl
-connection "exec_remote_linux" {
-  plugin = "exec"
-  
-  host = "my-remote-linux-host"
-  user = "my-username"
-  password = "my-password"
 }
 ```
 
@@ -93,6 +65,34 @@ connection "exec_remote_windows" {
   insecure = true
   user = "Administrator"
   password = "rh=PM76t54nouv&dqwe3cNM7J1(*skZhh*"
+}
+```
+
+#### Remote Linux connection through SSH with in-file private key
+
+```hcl
+connection "exec_remote_linux" {
+  plugin = "exec"
+
+  host = "my-remote-linux-host"
+  user = "my-username"
+  private_key = <<EOK
+-----BEGIN RSA PRIVATE KEY-----
+... snipped ...
+-----END RSA PRIVATE KEY-----
+EOK
+}
+```
+
+#### Remote Linux connection through SSH with password
+
+```hcl
+connection "exec_remote_linux" {
+  plugin = "exec"
+  
+  host = "my-remote-linux-host"
+  user = "my-username"
+  password = "my-password"
 }
 ```
 
