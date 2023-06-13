@@ -41,38 +41,6 @@ type execConfig struct {
 	ProxyUserPassword *string `cty:"proxy_user_password"`
 }
 
-/*
-	Type string
-
-	User           string
-	Password       string
-	PrivateKey     string
-	Certificate    string
-	Host           string
-	HostKey        string
-	Port           uint16
-	Agent          bool
-	ScriptPath     string
-	TargetPlatform string
-	Timeout        string
-	TimeoutVal     time.Duration
-
-	BastionUser        string
-	BastionPassword    string
-	BastionPrivateKey  string
-	BastionCertificate string
-	BastionHost        string
-	BastionHostKey     string
-	BastionPort        uint16
-
-	AgentIdentity string
-
-	HTTPS    bool
-	Insecure bool
-	NTLM     bool   `mapstructure:"use_ntlm"`
-	CACert   string `mapstructure:"cacert"`
-*/
-
 var ConfigSchema = map[string]*schema.Attribute{
 	"working_dir": {
 		Type: schema.TypeString,
