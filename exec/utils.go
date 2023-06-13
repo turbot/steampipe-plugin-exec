@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/mitchellh/go-linereader"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -18,7 +17,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 	conf := GetConfig(d.Connection)
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "conf", conf)
+	plugin.Logger(ctx).Trace("listLocalCommand", "conf", conf)
 
 	command := d.EqualsQualString("command")
 	if command == "" {
@@ -26,35 +25,26 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		return nil, nil
 	}
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "command", command)
+	plugin.Logger(ctx).Trace("listLocalCommand", "command", command)
 
-	//envVal := req.Config.GetAttr("environment")
 	envVal := map[string]string{"TODO": "support_map_config"}
 	var env []string
-	//if !envVal.IsNull() {
 	if len(envVal) > 0 {
-		//for k, v := range envVal.AsValueMap() {
 		for k, v := range envVal {
-			//if !v.IsNull() {
 			if v != "" {
-				//entry := fmt.Sprintf("%s=%s", k, v.AsString())
 				entry := fmt.Sprintf("%s=%s", k, v)
 				env = append(env, entry)
 			}
 		}
 	}
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "env", env)
+	plugin.Logger(ctx).Trace("listLocalCommand", "env", env)
 
 	// Choose the shell interpreter and add it to the start of the command
 	var cmdargs []string
-	//if !intrVal.IsNull() && intrVal.LengthInt() > 0 {
 	if len(conf.Interpreter) > 0 {
-		//for _, v := range intrVal.AsValueSlice() {
 		for _, v := range conf.Interpreter {
-			//if !v.IsNull() {
 			if v != "" {
-				//cmdargs = append(cmdargs, v.AsString())
 				cmdargs = append(cmdargs, v)
 			}
 		}
@@ -69,7 +59,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	// Command comes last
 	cmdargs = append(cmdargs, command)
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "cmdargs", cmdargs)
+	plugin.Logger(ctx).Trace("listLocalCommand", "cmdargs", cmdargs)
 
 	cmd := exec.CommandContext(ctx, cmdargs[0], cmdargs[1:]...)
 
@@ -88,25 +78,10 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	cmd.Env = cmdEnv
 
 	return cmd, nil
-
 }
 
-func copyUIOutput2(ctx context.Context, d *plugin.QueryData, r io.Reader, doneCh chan<- struct{}) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 starting...")
-	defer close(doneCh)
-	lr := linereader.New(r)
-	i := 1
-	for line := range lr.Ch {
-		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: "stdout"})
-		i = i + 1
-		//o.Output(line)
-	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput2 done")
-	return nil
-}
-
-func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 starting...")
+func outputLinesIntoRows(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows starting...")
 
 	stream := "stdout"
 	if isError {
@@ -120,26 +95,12 @@ func copyUIOutput3(ctx context.Context, d *plugin.QueryData, r io.Reader, isErro
 		i = i + 1
 	}
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput3 done")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows done")
 	return nil
 }
 
-func copyUIOutput4(ctx context.Context, d *plugin.QueryData, r io.Reader, wg *sync.WaitGroup) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput4 starting...")
-	defer wg.Done()
-	lr := linereader.New(r)
-	i := 1
-	for line := range lr.Ch {
-		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: "stdout"})
-		i = i + 1
-		//o.Output(line)
-	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput4 done")
-	return nil
-}
-
-func copyUIOutput5(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput5 starting...")
+func outputIntoRow(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputIntoRow starting...")
 
 	exitCode := 0
 	if isError {
@@ -153,6 +114,6 @@ func copyUIOutput5(ctx context.Context, d *plugin.QueryData, r io.Reader, isErro
 	}
 	d.StreamListItem(ctx, commandResult{Output: buf.String(), ExitCode: exitCode})
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "copyUIOutput5 done")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputIntoRow done")
 	return nil
 }

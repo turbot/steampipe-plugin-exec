@@ -63,13 +63,13 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, outR, false)
+		outputLinesIntoRows(ctx, d, outR, false)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		copyUIOutput3(ctx, d, errR, true)
+		outputLinesIntoRows(ctx, d, errR, true)
 	}()
 
 	retryCtx, cancel := context.WithTimeout(ctx, comm.Timeout())
@@ -87,12 +87,12 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	// Wait for the context to end and then disconnect
 	go func() {
-		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "wait for it...")
+		plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "wait for it...")
 		<-ctx.Done()
-		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "done!")
-		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "disconnecting...")
+		plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "done!")
+		plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "disconnecting...")
 		comm.Disconnect()
-		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "disconnected")
+		plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "disconnected")
 	}()
 
 	cmd = &remote.Cmd{
@@ -103,33 +103,33 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	result := commandResult{}
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Start...")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "cmd.Start...")
 	if err := comm.Start(cmd); err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "comm.Start", "command_error", err)
 		return nil, err
 	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Start done")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "cmd.Start done")
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Wait...")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "cmd.Wait...")
 	if err := cmd.Wait(); err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "comm.Wait", "command_error", err)
 		if e, ok := err.(*remote.ExitError); ok {
 			result.ExitCode = e.ExitStatus
 		}
 	}
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "cmd.Wait done")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "cmd.Wait done")
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "comm.Disconnect...")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "comm.Disconnect...")
 	outW.Close()
 	errW.Close()
 	comm.Disconnect()
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "comm.Disconnect done")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "comm.Disconnect done")
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "wg waiting...")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "wg waiting...")
 	wg.Wait()
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "wg done!")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "wg done!")
 
-	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "finished")
+	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "finished")
 
 	return nil, nil
 }
