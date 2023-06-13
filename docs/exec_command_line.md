@@ -1,6 +1,6 @@
 # Table: exec_command_line
 
-Execute a command on a local or remote machine and return as line by line.
+Execute a command locally or on a remote machine and return one row per output line.
 
 ## Examples
 

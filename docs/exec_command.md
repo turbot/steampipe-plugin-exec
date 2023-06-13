@@ -1,6 +1,6 @@
 # Table: exec_command
 
-Execute a command locally or on a remote machine and return as a single row.
+Execute a command locally or on a remote machine and return the output as a single row.
 
 ## Examples
 

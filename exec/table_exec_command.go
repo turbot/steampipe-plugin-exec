@@ -16,7 +16,7 @@ import (
 func tableExecCommand(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "exec_command",
-		Description: "Execute a command on a local or remote machine and return as a single row.",
+		Description: "Execute a command locally or on a remote machine and return the output as a single row.",
 		List: &plugin.ListConfig{
 			Hydrate: listExecCommand,
 			KeyColumns: []*plugin.KeyColumn{
