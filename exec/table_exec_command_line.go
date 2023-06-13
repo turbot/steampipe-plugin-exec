@@ -1,8 +1,10 @@
 package exec
 
 import (
+	"bufio"
 	"context"
 	"io"
+	"log"
 	"sync"
 
 	communicator "github.com/turbot/go-exec-communicator"
@@ -70,9 +72,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		copyUIOutput3(ctx, d, errR, true)
 	}()
 
-	commandCtx := ctx // context.Background()
-
-	retryCtx, cancel := context.WithTimeout(commandCtx, comm.Timeout())
+	retryCtx, cancel := context.WithTimeout(ctx, comm.Timeout())
 	defer cancel()
 
 	// Wait and retry until we establish the connection
@@ -88,7 +88,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	// Wait for the context to end and then disconnect
 	go func() {
 		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "wait for it...")
-		<-commandCtx.Done()
+		<-ctx.Done()
 		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "done!")
 		plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "disconnecting...")
 		comm.Disconnect()
@@ -125,9 +125,6 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	comm.Disconnect()
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "comm.Disconnect done")
 
-	// TODO - Prevent crashes from timing problems. Needs a channel type approach.
-	//time.Sleep(250 * time.Millisecond)
-
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "wg waiting...")
 	wg.Wait()
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "wg done!")
@@ -135,5 +132,70 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	plugin.Logger(ctx).Warn("listRemoteCommandResult", "ctx_done", "finished")
 
 	return nil, nil
+}
 
+type outputRow struct {
+	LineNumber int
+	Line       string
+	Stream     string
+}
+
+func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+
+	cmd, err := prepareCommand(ctx, d, h)
+	if err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "command_error", err)
+		return nil, err
+	}
+
+	if cmd == nil {
+		// Empty command returns zero rows
+		return nil, nil
+	}
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "pipe_error", err)
+		log.Fatal(err)
+	}
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "pipe_error", err)
+		return nil, err
+	}
+
+	if err := cmd.Start(); err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "command_error", err)
+		return nil, err
+	}
+
+	stdoutScanner := bufio.NewScanner(stdout)
+	lineNumber := 0
+	for stdoutScanner.Scan() {
+		lineNumber++
+		d.StreamListItem(ctx, outputRow{LineNumber: lineNumber, Line: stdoutScanner.Text(), Stream: "stdout"})
+	}
+	if err := stdoutScanner.Err(); err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "stdout_error", err)
+		return nil, err
+	}
+
+	stderrScanner := bufio.NewScanner(stderr)
+	for stderrScanner.Scan() {
+		lineNumber++
+		d.StreamListItem(ctx, outputRow{LineNumber: lineNumber, Line: stderrScanner.Text(), Stream: "stderr"})
+	}
+	if err := stderrScanner.Err(); err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "stderr_error", err)
+		return nil, err
+	}
+
+	if err := cmd.Wait(); err != nil {
+		// Log the error, but don't fail. The command error output will be captured
+		// and returned to the user.
+		plugin.Logger(ctx).Error("listLocalCommand", "command_error", err)
+	}
+
+	return nil, nil
 }

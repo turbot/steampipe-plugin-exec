@@ -55,13 +55,6 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	defer outW.Close()
 	defer errW.Close()
 
-	/*
-		outputDoneCh := make(chan struct{})
-		go copyUIOutput2(ctx, d, outR, outputDoneCh)
-		errDoneCh := make(chan struct{})
-		go copyUIOutput2(ctx, d, errR, errDoneCh)
-	*/
-
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -76,24 +69,7 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 		copyUIOutput5(ctx, d, errR, true)
 	}()
 
-	/*
-		wg.Add(1)
-		go copyUIOutput4(ctx, d, outR, &wg)
-		wg.Add(1)
-		go copyUIOutput4(ctx, d, errR, &wg)
-	*/
-
-	/*
-		remotePath := comm.ScriptPath()
-
-		if err := comm.UploadScript(remotePath, script); err != nil {
-			return fmt.Errorf("Failed to upload script: %v", err)
-		}
-	*/
-
-	commandCtx := ctx // context.Background()
-
-	retryCtx, cancel := context.WithTimeout(commandCtx, comm.Timeout())
+	retryCtx, cancel := context.WithTimeout(ctx, comm.Timeout())
 	defer cancel()
 
 	// Wait and retry until we establish the connection
@@ -109,21 +85,14 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	// Wait for the context to end and then disconnect
 	go func() {
 		plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "wait for it...")
-		<-commandCtx.Done()
+		<-ctx.Done()
 		plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "done!")
-		/*
-			<-outputDoneCh
-			plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "outputDoneCh done!")
-			<-errDoneCh
-			plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "errDoneCh done!")
-		*/
 		plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "disconnecting...")
 		comm.Disconnect()
 		plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "disconnected")
 	}()
 
 	cmd = &remote.Cmd{
-		//Command: remotePath,
 		Command: command,
 		Stdout:  outW,
 		Stderr:  errW,
@@ -153,9 +122,6 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	comm.Disconnect()
 	plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "comm.Disconnect done")
 
-	// TODO - Prevent crashes from timing problems. Needs a channel type approach.
-	//time.Sleep(250 * time.Millisecond)
-
 	plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "wg waiting...")
 	wg.Wait()
 	plugin.Logger(ctx).Warn("listExecCommand", "ctx_done", "wg done!")
@@ -164,4 +130,48 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	return nil, nil
 
+}
+
+type commandResult struct {
+	Output   string `json:"output"`
+	ExitCode int    `json:"exit_code"`
+}
+
+func listLocalCommandResult(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+
+	cmd, err := prepareCommand(ctx, d, h)
+	if err != nil {
+		plugin.Logger(ctx).Error("listLocalCommandResult", "command_error", err)
+		return nil, err
+	}
+
+	if cmd == nil {
+		// Empty command returns zero rows
+		plugin.Logger(ctx).Debug("listLocalCommandResult", "cmd", cmd)
+		return nil, nil
+	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// Log the error, but don't fail. The command error output will be captured
+		// and returned to the user.
+		plugin.Logger(ctx).Error("listLocalCommandResult", "command_error", err)
+	}
+
+	outputStr := string(output)
+
+	// NOTE - I considered stripping the final newline. The output string looks
+	// weird with the final newline (appears like an extra newline) in SQL
+	// results, so is confusing. But removing the newline is altering the output,
+	// so on balance better to leave it accurate. I'm leaving this code here as a
+	// warning to anyone who is tempted to strip the newline in the future.
+	// outputStr := strings.TrimSuffix(outputStr, "\n")
+
+	result := commandResult{
+		Output:   outputStr,
+		ExitCode: cmd.ProcessState.ExitCode(),
+	}
+	d.StreamListItem(ctx, result)
+
+	return nil, nil
 }
