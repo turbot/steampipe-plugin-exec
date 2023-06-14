@@ -175,3 +175,31 @@ from
 where
   command = 'diskutil list';
 ```
+
+### Query local network interfaces through Python interpreter
+
+This example requires Python3 interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+
+```sql
+select
+  index,
+  name
+from
+  exec_local.exec_command,
+  json_to_recordset(output::json) as x(index int, name text)
+where
+  command = 'import json, socket; print(json.dumps([{"index": interface[0], "name": interface[1]} for interface in socket.if_nameindex()]))';
+```
+
+### Query local hostname through Perl interpreter
+
+This example requires Perl interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+
+```sql
+select
+  output as hostname
+from
+  exec_local.exec_command
+where
+  command = 'use Sys::Hostname; my $hostname = hostname; print "$hostname\n";';
+```

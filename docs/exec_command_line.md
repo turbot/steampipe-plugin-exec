@@ -210,4 +210,32 @@ from
   )
   subquery;
 ```
- 
+
+### Query local processor through Python interpreter
+
+This example requires Python3 interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+
+```sql
+select
+  line as processor
+from
+  exec_local.exec_command_line
+where
+  command = 'import platform; print(platform.processor())';
+```
+
+### Query local disk usage through Python interpreter
+
+This example requires Python3 interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+
+```sql
+select
+  total,
+  used,
+  free
+from
+  exec_local.exec_command_line,
+  json_to_record(line::json) as x(total bigint, used bigint, free bigint)
+where
+  command = 'import json, shutil; du = shutil.disk_usage("/"); print(json.dumps({"total": du[0], "used": du[1], "free": du[2]}))';
+```

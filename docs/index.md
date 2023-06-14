@@ -102,6 +102,46 @@ connection "exec_remote_windows" {
 }
 ```
 
+#### Local connection using a specific interpreter
+
+##### Bash interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/bash", "-c"]
+}
+```
+
+##### ZSH interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/zsh", "-c"]
+}
+```
+
+##### Python3 interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/python3", "-c"]
+}
+```
+
+##### Perl interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/perl", "-e"]
+}
+```
+
+> Pro-tip: If you are going to use multiple interpreters, you can name the connection name to reflect the interpreter used. For example, `connection "exec_local_bash" { ... }` or `connection "exec_local_python" { ... }` etc.
+
 #### Remote Windows connection through WinRM ignoring certificate validation
 
 ```hcl
