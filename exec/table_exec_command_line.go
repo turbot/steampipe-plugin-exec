@@ -134,12 +134,6 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	return nil, nil
 }
 
-type outputRow struct {
-	LineNumber int
-	Line       string
-	Stream     string
-}
-
 func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
 	cmd, err := prepareCommand(ctx, d, h)

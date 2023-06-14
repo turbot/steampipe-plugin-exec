@@ -13,6 +13,17 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
+type commandResult struct {
+	Output   string `json:"output"`
+	ExitCode int    `json:"exit_code"`
+}
+
+type outputRow struct {
+	LineNumber int
+	Line       string
+	Stream     string
+}
+
 func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (*exec.Cmd, error) {
 
 	conf := GetConfig(d.Connection)
