@@ -66,7 +66,7 @@ where
   command = 'df -h';
 ```
 
-### List Linux users accounts
+### List Linux user accounts
 
 ```sql
 select
@@ -178,7 +178,7 @@ where
 
 ### Query local network interfaces through Python interpreter
 
-This example requires Python3 interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+This example requires Python3 interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
 ```sql
 select
@@ -193,7 +193,7 @@ where
 
 ### Query local hostname through Perl interpreter
 
-This example requires Perl interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+This example requires Perl interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
 ```sql
 select

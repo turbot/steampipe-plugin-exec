@@ -49,7 +49,7 @@ order by
   line_number;
 ```
 
-### List Linux users accounts
+### List Linux user accounts
 
 ```sql
 select
@@ -109,7 +109,7 @@ order by
   line_number;
 ```
 
-### List Linux users accounts by parsing /etc/passwd into columns
+### List Linux user accounts by parsing /etc/passwd into columns
 
 ```sql
 select
@@ -213,7 +213,7 @@ from
 
 ### Query local processor through Python interpreter
 
-This example requires Python3 interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+This example requires Python3 interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
 ```sql
 select
@@ -226,7 +226,7 @@ where
 
 ### Query local disk usage through Python interpreter
 
-This example requires Python3 interpreter to be set on `exec.spc` file. Please refer to [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
+This example requires Python3 interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
 ```sql
 select
