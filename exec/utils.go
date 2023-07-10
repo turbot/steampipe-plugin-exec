@@ -28,7 +28,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 	conf := GetConfig(d.Connection)
 
-	plugin.Logger(ctx).Trace("listLocalCommand", "conf", conf)
+	plugin.Logger(ctx).Debug("listLocalCommand", "conf", conf)
 
 	command := d.EqualsQualString("command")
 	if command == "" {
@@ -36,7 +36,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		return nil, nil
 	}
 
-	plugin.Logger(ctx).Trace("listLocalCommand", "command", command)
+	plugin.Logger(ctx).Debug("listLocalCommand", "command", command)
 
 	envVal := map[string]string{"TODO": "support_map_config"}
 	var env []string
@@ -49,7 +49,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		}
 	}
 
-	plugin.Logger(ctx).Trace("listLocalCommand", "env", env)
+	plugin.Logger(ctx).Debug("listLocalCommand", "env", env)
 
 	// Choose the shell interpreter and add it to the start of the command
 	var cmdargs []string
@@ -70,7 +70,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	// Command comes last
 	cmdargs = append(cmdargs, command)
 
-	plugin.Logger(ctx).Trace("listLocalCommand", "cmdargs", cmdargs)
+	plugin.Logger(ctx).Debug("listLocalCommand", "cmdargs", cmdargs)
 
 	cmd := exec.CommandContext(ctx, cmdargs[0], cmdargs[1:]...)
 
@@ -92,7 +92,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 }
 
 func outputLinesIntoRows(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
-	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows starting...")
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows starting...")
 
 	stream := "stdout"
 	if isError {
@@ -106,12 +106,12 @@ func outputLinesIntoRows(ctx context.Context, d *plugin.QueryData, r io.Reader, 
 		i = i + 1
 	}
 
-	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows done")
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows done")
 	return nil
 }
 
 func outputIntoRow(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
-	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputIntoRow starting...")
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputIntoRow starting...")
 
 	exitCode := 0
 	if isError {
@@ -125,6 +125,6 @@ func outputIntoRow(ctx context.Context, d *plugin.QueryData, r io.Reader, isErro
 	}
 	d.StreamListItem(ctx, commandResult{Output: buf.String(), ExitCode: exitCode})
 
-	plugin.Logger(ctx).Trace("listRemoteCommandResult", "ctx_done", "outputIntoRow done")
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputIntoRow done")
 	return nil
 }

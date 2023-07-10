@@ -16,6 +16,7 @@ connection "exec_local" {
 }
 
 # Defines a remote connection to a Linux host
+
 connection "exec_linux" {
   plugin = "exec"
 
