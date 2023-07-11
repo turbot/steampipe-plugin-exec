@@ -60,13 +60,19 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		outputIntoRow(ctx, d, outR, false)
+		err = outputIntoRow(ctx, d, outR, false)
+		if err != nil {
+			plugin.Logger(ctx).Error("listExecCommand", "outputLinesIntoRows", err)
+		}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		outputIntoRow(ctx, d, errR, true)
+		err = outputIntoRow(ctx, d, errR, true)
+		if err != nil {
+			plugin.Logger(ctx).Error("listExecCommand", "outputLinesIntoRows", err)
+		}
 	}()
 
 	retryCtx, cancel := context.WithTimeout(ctx, comm.Timeout())
@@ -88,7 +94,10 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 		<-ctx.Done()
 		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "done!")
 		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "disconnecting...")
-		comm.Disconnect()
+		err = comm.Disconnect()
+		if err != nil {
+			plugin.Logger(ctx).Error("listExecCommand", "ctx_done", "disconnection failure")
+		}
 		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "disconnected")
 	}()
 
@@ -119,7 +128,10 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "comm.Disconnect...")
 	outW.Close()
 	errW.Close()
-	comm.Disconnect()
+	err = comm.Disconnect()
+	if err != nil {
+		plugin.Logger(ctx).Error("listExecCommand", "ctx_done", "disconnection failure")
+	}
 	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "comm.Disconnect done")
 
 	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "wg waiting...")

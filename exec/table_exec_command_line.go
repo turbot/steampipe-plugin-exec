@@ -63,13 +63,19 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		outputLinesIntoRows(ctx, d, outR, false)
+		err = outputLinesIntoRows(ctx, d, outR, false)
+		if err != nil {
+			plugin.Logger(ctx).Error("listRemoteCommandResult", "outputLinesIntoRows", err)
+		}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		outputLinesIntoRows(ctx, d, errR, true)
+		err = outputLinesIntoRows(ctx, d, errR, true)
+		if err != nil {
+			plugin.Logger(ctx).Error("listRemoteCommandResult", "outputLinesIntoRows", err)
+		}
 	}()
 
 	retryCtx, cancel := context.WithTimeout(ctx, comm.Timeout())
@@ -91,7 +97,10 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		<-ctx.Done()
 		plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "done!")
 		plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "disconnecting...")
-		comm.Disconnect()
+		err = comm.Disconnect()
+		if err != nil {
+			plugin.Logger(ctx).Error("listRemoteCommandResult", "ctx_done", "disconnection failed")
+		}
 		plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "disconnected")
 	}()
 
@@ -122,7 +131,10 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "comm.Disconnect...")
 	outW.Close()
 	errW.Close()
-	comm.Disconnect()
+	err = comm.Disconnect()
+	if err != nil {
+		plugin.Logger(ctx).Error("listRemoteCommandResult", "ctx_done", "disconnection failed")
+	}
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "comm.Disconnect done")
 
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "wg waiting...")
