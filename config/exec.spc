@@ -1,13 +1,12 @@
-# Examples of common connections configurations can be found at: https://hub.steampipe.io/plugins/turbot/exec
-
 # Defines a local connection
+
 connection "exec_local" {
   plugin = "exec"
 
   # Working directory to use when running commands.
   # Default is the current directory where steampipe is running.
   # For example:
-  # working_dir = "/tmp"
+  working_dir = "."
 
   # Shell interpreter to use for commands.
   # Defaults: Windows is "cmd /C", otherwise "sh -c".
@@ -15,26 +14,31 @@ connection "exec_local" {
   # interpreter = [ "/bin/bash", "-c" ]
 }
 
+# Additional example connection configs for different host types
+# Specific examples can also be found at https://hub.steampipe.io/plugins/turbot/exec
+
 # Defines a remote connection to a Linux host
 
-connection "exec_linux" {
-  plugin = "exec"
+# connection "exec_linux" {
+  # plugin = "exec"
 
   # Protocol for the connection, set ssh for Linux hosts.
-  protocol = "ssh"
+  # protocol = "ssh"
 
   # Host to connect to, either an IP address or a hostname.
-  host = "my-remote-linux-host"
+  # host = "my-remote-linux-host"
+
+  # Optional - Port to connect to, defaults to 22
+  # port = 22
 
   # Username for the remote host connection.
-  user = "ubuntu"
+  # user = "ubuntu"
 
   # Credentials, either password or private_key.
   # password = "my_password"
 
   # private_key can be either a path to a private key file or the private key itself.
-  private_key = "~/.ssh/my-remote-linux-host.pem"
-
+  # private_key = "~/.ssh/my-remote-linux-host.pem"
 
   # Optional - Proxy settings
   # Enables the plugin to connect to host through a HTTP proxy.
@@ -45,7 +49,6 @@ connection "exec_linux" {
   # proxy_user_name = "my_proxy_user"
   # proxy_user_password = "proxy_password"
 
-
   # Optional - Bastion connection settings
   # Enables connecting to host through a bastion host. The plugin will connect to bastion_host first, and then connect from there to host.
 
@@ -54,34 +57,35 @@ connection "exec_linux" {
   # bastion_port = 22
   # bastion_password = "my_password"
   # bastion_private_key = "~/.ssh/my-bastion-host.pem"
-}
+# }
 
 # Defines a remote connection to a Windows host
+
 # The Windows host must have WinRM enabled and configured.
 # You can check links bellow for more information on how to configure WinRM:
 # https://learn.microsoft.com/en-us/windows/win32/winrm/installation-and-configuration-for-windows-remote-management
 # https://learn.microsoft.com/en-us/troubleshoot/windows-client/system-management-components/configure-winrm-for-https
-connection "exec_windows" {
-  plugin = "exec"
+# connection "exec_windows" {
+  # plugin = "exec"
 
   # Protocol for the connection, set winrm for Windows hosts.
-  protocol = "winrm"
+  # protocol = "winrm"
 
   # Host to connect to, either an IP address or a hostname.
-  host = "18.228.214.45"
+  # host = "18.228.214.45"
 
   # Optional - Port to connect to, defaults to 5985
   # port = 5986
 
   # Username for the remote host connection.
-  user = "Administrator"
+  # user = "Administrator"
 
   # Password for the remote host connection.
-  password = "rh=PM76t54nouv&dqwe3cNM7J1(*skZhh*"
+  # password = "rh=PM76t54nouv&dqwe3cNM7J1(*skZhh*"
 
   # Optional - WinrM over HTTPS instead of HTTP. Defaults to false
   # https = true
 
   # Optional - Ignore certificate for HTTPS connection. Defaults to false
-	# insecure = true
-}
+  # insecure = true
+# }
