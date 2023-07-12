@@ -4,19 +4,19 @@ Execute a command locally or on a remote machine and return the output as a sing
 
 ## Examples
 
-### Query JSON files on Linux hosts
+### Query JSON files on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output::jsonb -> 'core' ->> 'url' as jekins_war_url
 from
-  ubuntu.exec_command
+  exec_command
 where
   command = 'cat jenkins-default.json';
 ```
 
-### Query package.json dependencies on multiple hosts
+### Query package.json dependencies on Linux host
 
 ```sql
 SELECT
@@ -24,123 +24,123 @@ SELECT
   dep.key AS dependency,
   dep.value AS version
 FROM
-  ubuntu.exec_command,
+  exec_command,
   json_each_text(output::json->'dependencies') AS dep(key, value)
 where
   command = 'cat package.json';
 ```
 
-### List files on multiple Linux hosts
+### List files on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output
 from
-  ubuntu.exec_command 
+  exec_command 
 where
   command = 'ls -la';
 ```
 
-### List Linux devices
+### List devices on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output
 from
-  ubuntu.exec_command
+  exec_command
 where
   command = 'lsblk';
 ```
 
-### List disks of Linux hosts
+### List disks on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output
 from
-  ubuntu.exec_command
+  exec_command
 where
   command = 'df -h';
 ```
 
-### List Linux user accounts
+### List user accounts on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output 
 from
-  ubuntu.exec_command 
+  exec_command 
 where
   command = 'cat /etc/passwd';
 ```
 
-### Query Linux host files on multiple hosts
+### Query host file on Linux host
 
 ```sql
 select
   output,
   _ctx ->> 'connection_name' as host 
 from
-  ubuntu.exec_command 
+  exec_command 
 where
   command = 'cat /etc/hosts';
 ```
 
-### List processes on Linux hosts
+### List processes on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output 
 from
-  ubuntu.exec_command 
+  exec_command 
 where
   command = 'ps -ef';
 ```
 
-### Show hardware information on Linux hosts
+### Show hardware information on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output 
 from
-  ubuntu.exec_command 
+  exec_command 
 where
   command = 'lshw';
 ```
 
-### Query configuration file for rsyslog on Linux hosts
+### Query configuration file for rsyslog on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output
 from
-  ubuntu.exec_command
+  exec_command
 where
   command = 'cat /etc/rsyslog.conf';
 ```
 
-### Query Linux host IP addresses
+### Query host IP addresses on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output
 from
-  ubuntu.exec_command
+  exec_command
 where
   command = 'ip addr'
 order by
   host;
 ```
 
-### List files on Windows hosts
+### List files on Windows host
 
 ```sql
 select
@@ -152,7 +152,7 @@ where
   command = 'dir';
 ```
 
-### List network info on Windows hosts
+### List network info on Windows host
 
 ```sql
 select
@@ -164,19 +164,19 @@ where
   command = 'ipconfig /all';
 ```
 
-### List local disks on a Mac OSX
+### List disks on a local Mac OSX
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   output
 from
-  exec_local.exec_remote_command 
+  exec_remote_command 
 where
   command = 'diskutil list';
 ```
 
-### Query local network interfaces through Python interpreter
+### Query network interfaces through Python interpreter on local machine
 
 This example requires Python3 interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
@@ -185,13 +185,13 @@ select
   index,
   name
 from
-  exec_local.exec_command,
+  exec_command,
   json_to_recordset(output::json) as x(index int, name text)
 where
   command = 'import json, socket; print(json.dumps([{"index": interface[0], "name": interface[1]} for interface in socket.if_nameindex()]))';
 ```
 
-### Query local hostname through Perl interpreter
+### Query hostname through Perl interpreter on local machine
 
 This example requires Perl interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
@@ -199,7 +199,7 @@ This example requires Perl interpreter to be set on `exec.spc` file. Please refe
 select
   output as hostname
 from
-  exec_local.exec_command
+  exec_command
 where
   command = 'use Sys::Hostname; my $hostname = hostname; print "$hostname\n";';
 ```

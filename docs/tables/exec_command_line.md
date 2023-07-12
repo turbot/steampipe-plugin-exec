@@ -4,14 +4,14 @@ Execute a command locally or on a remote machine and return one row per output l
 
 ## Examples
 
-### List files on multiple Linux hosts
+### List files on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line
 from
-  ubuntu.exec_command_line 
+  exec_command_line 
 where
   command = 'ls -la' 
 order by
@@ -19,14 +19,14 @@ order by
   line_number;
 ```
 
-### List Linux devices
+### List devices on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line
 from
-  ubuntu.exec_command_line
+  exec_command_line
 where
   command = 'lsblk'
 order by
@@ -34,14 +34,14 @@ order by
   line_number;
 ```
 
-### List disks of Linux hosts
+### List disks on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line
 from
-  ubuntu.exec_command_line
+  exec_command_line
 where
   command = 'df -h'
 order by
@@ -49,14 +49,14 @@ order by
   line_number;
 ```
 
-### List Linux user accounts
+### List user accounts on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line 
 from
-  ubuntu.exec_command_line 
+  exec_command_line 
 where
   command = 'cat /etc/passwd' 
 order by
@@ -64,14 +64,14 @@ order by
   line_number;
 ```
 
-### Query Linux host files on multiple hosts
+### Query host file on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line 
 from
-  ubuntu.exec_command_line 
+  exec_command_line 
 where
   command = 'cat /etc/hosts' 
 order by
@@ -79,14 +79,14 @@ order by
   line_number;
 ```
 
-### List processes on Linux hosts
+### List processes on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line 
 from
-  ubuntu.exec_command_line 
+  exec_command_line 
 where
   command = 'ps -ef' 
 order by
@@ -94,14 +94,14 @@ order by
   line_number;
 ```
 
-### Show hardware information on Linux hosts
+### Show hardware information on Linux host
 
 ```sql
 select
   _ctx ->> 'connection_name' as host,
   line 
 from
-  ubuntu.exec_command_line 
+  exec_command_line 
 where
   command = 'lshw' 
 order by
@@ -109,7 +109,7 @@ order by
   line_number;
 ```
 
-### List Linux user accounts by parsing /etc/passwd into columns
+### List user accounts on Linux host by parsing /etc/passwd file into columns
 
 ```sql
 select
@@ -127,7 +127,7 @@ from
       _ctx ->> 'connection_name' as host,
       string_to_array(line, ':') as split_output 
     from
-      ubuntu.exec_command_line 
+      exec_command_line 
     where
       command = 'cat /etc/passwd'
     order by
@@ -137,7 +137,8 @@ from
   subquery;
 ```
 
-### List elevated commands ran on Linux hosts (/var/log/auth.log)
+### List elevated commands ran on Linux host (/var/log/auth.log)
+
 Ref: https://regex101.com/r/ImwoFl/3
 
 ```sql
@@ -154,7 +155,7 @@ from
     select
       regexp_matches(line, '^(\S{3})? {1,2}(\S+) (\S+) (\S+) (.+?(?=\[)|.+?(?=))[^a-zA-Z0-9](\d{1,7}|)[^a-zA-Z0-9]{1,3}PWD=([^ ]+) ; USER=([^ ]+) ; COMMAND=(.*)$') as matches 
     from
-      staging.exec_command_line 
+      exec_command_line 
     where
       command = 'cat /var/log/auth.log' 
     order by
@@ -164,7 +165,7 @@ from
   subquery;
 ```
 
-### List /etc/login.defs settings on Linux hosts
+### List /etc/login.defs settings on Linux host
 
 ```sql
 select
@@ -177,7 +178,7 @@ from
       _ctx ->> 'connection_name' as host,
       regexp_matches(line, '^(\S+)\s+(\S+)') as matches
     from
-      ubuntu.exec_command_line 
+      exec_command_line 
     where
       command = 'grep -vE ''^($|#)'' /etc/login.defs' 
     order by
@@ -187,7 +188,7 @@ from
   subquery;
 ```
 
-### List installed packages on Debian hosts
+### List installed packages on Linux/Debian host
 
 ```sql
 select
@@ -200,7 +201,7 @@ from
       _ctx ->> 'connection_name' as host,
       regexp_matches(line, '^(\\S+)\\h(\\S+)\\h(\\S+)\\h(.*)') as matches
     from
-      staging.exec_command_line 
+      exec_command_line 
     where
       command = 'apt list --installed' 
     order by
@@ -211,7 +212,7 @@ from
   subquery;
 ```
 
-### Query local processor through Python interpreter
+### Query processor through Python interpreter on local machine
 
 This example requires Python3 interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
@@ -219,12 +220,12 @@ This example requires Python3 interpreter to be set on `exec.spc` file. Please r
 select
   line as processor
 from
-  exec_local.exec_command_line
+  exec_command_line
 where
   command = 'import platform; print(platform.processor())';
 ```
 
-### Query local disk usage through Python interpreter
+### Query disk usage through Python interpreter on local machine
 
 This example requires Python3 interpreter to be set on `exec.spc` file. Please refer [this](index.md#local-connection-using-a-specific-interpreter) on how to set it up.
 
@@ -234,7 +235,7 @@ select
   used,
   free
 from
-  exec_local.exec_command_line,
+  exec_command_line,
   json_to_record(line::json) as x(total bigint, used bigint, free bigint)
 where
   command = 'import json, shutil; du = shutil.disk_usage("/"); print(json.dumps({"total": du[0], "used": du[1], "free": du[2]}))';
