@@ -2,7 +2,7 @@
 
 # Exec Plugin for Steampipe
 
-Use SQL to run & query shell commands on local and remote servers.
+Use SQL to run commands locally or on remote Linux and Windows hosts. Then get the result as a table.
 
 - **[Get started →](https://hub.steampipe.io/plugins/turbot/exec)**
 - Documentation: [Table definitions & examples](https://hub.steampipe.io/plugins/turbot/exec/tables)

@@ -12,7 +12,7 @@ og_image: "/images/plugins/turbot/exec-social-graphic.png"
 
 # Exec + Steampipe
 
-Command can be anything that can be run on the command line. This includes shell commands, scripts, and binaries.
+Execute commands locally or on remote Linux and Windows hosts through SSH or WinRM.
 
 [Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
 
