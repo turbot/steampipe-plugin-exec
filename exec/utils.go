@@ -3,54 +3,59 @@ package exec
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/mitchellh/go-linereader"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
+
+type commandResult struct {
+	Output   string `json:"output"`
+	ExitCode int    `json:"exit_code"`
+}
+
+type outputRow struct {
+	LineNumber int
+	Line       string
+	Stream     string
+}
 
 func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (*exec.Cmd, error) {
 
 	conf := GetConfig(d.Connection)
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "conf", conf)
+	plugin.Logger(ctx).Debug("listLocalCommand", "conf", conf)
 
-	command := d.KeyColumnQuals["command"].GetStringValue()
+	command := d.EqualsQualString("command")
 	if command == "" {
 		// Empty command returns zero rows
 		return nil, nil
 	}
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "command", command)
+	plugin.Logger(ctx).Debug("listLocalCommand", "command", command)
 
-	//envVal := req.Config.GetAttr("environment")
 	envVal := map[string]string{"TODO": "support_map_config"}
 	var env []string
-	//if !envVal.IsNull() {
 	if len(envVal) > 0 {
-		//for k, v := range envVal.AsValueMap() {
 		for k, v := range envVal {
-			//if !v.IsNull() {
 			if v != "" {
-				//entry := fmt.Sprintf("%s=%s", k, v.AsString())
 				entry := fmt.Sprintf("%s=%s", k, v)
 				env = append(env, entry)
 			}
 		}
 	}
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "env", env)
+	plugin.Logger(ctx).Debug("listLocalCommand", "env", env)
 
 	// Choose the shell interpreter and add it to the start of the command
 	var cmdargs []string
-	//if !intrVal.IsNull() && intrVal.LengthInt() > 0 {
 	if len(conf.Interpreter) > 0 {
-		//for _, v := range intrVal.AsValueSlice() {
 		for _, v := range conf.Interpreter {
-			//if !v.IsNull() {
 			if v != "" {
-				//cmdargs = append(cmdargs, v.AsString())
 				cmdargs = append(cmdargs, v)
 			}
 		}
@@ -65,7 +70,7 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	// Command comes last
 	cmdargs = append(cmdargs, command)
 
-	plugin.Logger(ctx).Warn("listLocalCommand", "cmdargs", cmdargs)
+	plugin.Logger(ctx).Debug("listLocalCommand", "cmdargs", cmdargs)
 
 	cmd := exec.CommandContext(ctx, cmdargs[0], cmdargs[1:]...)
 
@@ -84,5 +89,42 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	cmd.Env = cmdEnv
 
 	return cmd, nil
+}
 
+func outputLinesIntoRows(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows starting...")
+
+	stream := "stdout"
+	if isError {
+		stream = "stderr"
+	}
+
+	lr := linereader.New(r)
+	i := 1
+	for line := range lr.Ch {
+		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: stream})
+		i = i + 1
+	}
+
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows done")
+	return nil
+}
+
+func outputIntoRow(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputIntoRow starting...")
+
+	exitCode := 0
+	if isError {
+		exitCode = 1
+	}
+
+	buf := new(strings.Builder)
+	n, _ := io.Copy(buf, r)
+	if n == 0 {
+		return nil
+	}
+	d.StreamListItem(ctx, commandResult{Output: buf.String(), ExitCode: exitCode})
+
+	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputIntoRow done")
+	return nil
 }
