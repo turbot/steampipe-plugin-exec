@@ -96,51 +96,11 @@ connection "exec_remote_windows" {
 
   protocol = "winrm"
   host = "18.228.214.45"
-  port = 5986
+  port = 5985
   user = "Administrator"
   password = "rh=PM76t54nouv&dqwe3cNM7J1(*skZhh*"
 }
 ```
-
-#### Local connection using a specific interpreter
-
-##### Bash interpreter
-
-```hcl
-connection "exec_local" {
-  plugin = "exec"
-  interpreter = ["/bin/bash", "-c"]
-}
-```
-
-##### ZSH interpreter
-
-```hcl
-connection "exec_local" {
-  plugin = "exec"
-  interpreter = ["/bin/zsh", "-c"]
-}
-```
-
-##### Python3 interpreter
-
-```hcl
-connection "exec_local" {
-  plugin = "exec"
-  interpreter = ["/bin/python3", "-c"]
-}
-```
-
-##### Perl interpreter
-
-```hcl
-connection "exec_local" {
-  plugin = "exec"
-  interpreter = ["/bin/perl", "-e"]
-}
-```
-
-> Pro-tip: If you are going to use multiple interpreters, you can name the connection name to reflect the interpreter used. For example, `connection "exec_local_bash" { ... }` or `connection "exec_local_python" { ... }` etc.
 
 #### Remote Windows connection through WinRM ignoring certificate validation
 
@@ -277,6 +237,37 @@ connection "server2-staging" {
   private_key = "~/.ssh/my-remote-linux-host.pem"
 }
 ```
+
+#### Local connection using a specific interpreter
+
+##### ZSH interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/zsh", "-c"]
+}
+```
+
+##### Python3 interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/python3", "-c"]
+}
+```
+
+##### Perl interpreter
+
+```hcl
+connection "exec_local" {
+  plugin = "exec"
+  interpreter = ["/bin/perl", "-e"]
+}
+```
+
+> Pro-tip: If you are going to use multiple interpreters, you can name the connection name to reflect the interpreter used. For example, `connection "exec_local_bash" { ... }` or `connection "exec_local_python" { ... }` etc.
 
 ## Get involved
 
