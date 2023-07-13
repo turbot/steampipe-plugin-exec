@@ -20,12 +20,12 @@ where
 
 ```sql
 SELECT
-  _ctx->>'connection_name' AS host,
-  dep.key AS dependency,
-  dep.value AS version
+  _ctx->>'connection_name' as host,
+  dep.key as dependency,
+  dep.value as version
 FROM
   exec_command,
-  json_each_text(output::json->'dependencies') AS dep(key, value)
+  json_each_text(output::json->'dependencies') as dep(key, value)
 where
   command = 'cat package.json';
 ```
