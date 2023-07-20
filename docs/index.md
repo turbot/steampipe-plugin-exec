@@ -271,5 +271,5 @@ connection "exec_local" {
 
 ## Get involved
 
-- Open source: https://github.com/turbot/steampipe-plugin-jenkins
+- Open source: https://github.com/turbot/steampipe-plugin-exec
 - Community: [Slack Channel](https://steampipe.io/community/join)
