@@ -1,3 +1,9 @@
+## v0.0.2 [2023-07-20]
+
+_Bug fixes_
+
+- Fixed the incorrect github repository reference in `docs/index.md` file.
+
 ## v0.0.1 [2023-07-13]
 
 _What's new?_
