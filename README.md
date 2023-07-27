@@ -6,7 +6,7 @@ Use SQL to run commands locally or on remote Linux and Windows hosts. Then get t
 
 - **[Get started →](https://hub.steampipe.io/plugins/turbot/exec)**
 - Documentation: [Table definitions & examples](https://hub.steampipe.io/plugins/turbot/exec/tables)
-- Community: [Slack Channel](https://steampipe.io/community/join)
+- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
 - Get involved: [Issues](https://github.com/turbot/steampipe-plugin-exec/issues)
 
 ## Quick start
