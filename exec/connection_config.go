@@ -189,9 +189,13 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		}
 	}
 
+	// Detects remote connection
+	if conf.Protocol != nil || conf.Host != nil || conf.Port != nil || conf.Https != nil || conf.Insecure != nil || conf.User != nil || conf.Password != nil || conf.PrivateKey != nil {
+		localConnection = false
+	}
+
 	if conf.Protocol != nil {
 		config.Type = *conf.Protocol
-		localConnection = false
 	} else {
 		if !localConnection {
 			return nil, nil, localConnection, errors.New("protocol is required in config")
@@ -199,7 +203,6 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 	}
 	if conf.Host != nil {
 		config.Host = *conf.Host
-		localConnection = false
 	} else {
 		if !localConnection {
 			return nil, nil, localConnection, errors.New("host is required in config")
@@ -207,18 +210,15 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 	}
 	if conf.Port != nil {
 		config.Port = uint16(*conf.Port)
-		localConnection = false
 	}
 	if conf.Https != nil {
 		config.HTTPS = *conf.Https
-		localConnection = false
 	}
 	if conf.Insecure != nil {
 		config.Insecure = *conf.Insecure
-		localConnection = false
 	}
+
 	if config.Type == "ssh" {
-		localConnection = false
 		if conf.User != nil {
 			config.User = *conf.User
 		} else {
@@ -237,7 +237,6 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		}
 	}
 	if config.Type == "winrm" {
-		localConnection = false
 		if conf.User != nil {
 			config.User = *conf.User
 		} else {

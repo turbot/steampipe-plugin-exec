@@ -27,6 +27,7 @@ Configure your credential details in `~/.steampipe/config/exec.spc`:
 connection "exec" {
   plugin = "exec"
 
+  protocol = "ssh"
   host = "my-remote-linux-host"
   user = "my-username"
   private_key = "~/.ssh/my-remote-linux-host.pem"

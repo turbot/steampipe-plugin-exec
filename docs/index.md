@@ -82,6 +82,7 @@ connection "exec_local" {
 connection "exec_remote_linux" {
   plugin = "exec"
 
+  protocol = "ssh"
   host = "my-remote-linux-host"
   user = "my-username"
   private_key = "~/.ssh/my-remote-linux-host.pem"
@@ -124,6 +125,7 @@ connection "exec_remote_windows" {
 connection "exec_remote_linux" {
   plugin = "exec"
 
+  protocol = "ssh"
   host = "my-remote-linux-host"
   user = "my-username"
   private_key = <<EOK
@@ -140,6 +142,7 @@ EOK
 connection "exec_remote_linux" {
   plugin = "exec"
   
+  protocol = "ssh"
   host = "my-remote-linux-host"
   user = "my-username"
   password = "my-password"
@@ -224,6 +227,7 @@ connection "staging_servers" {
 connection "server1-staging" {
   plugin = "exec"
 
+  protocol = "ssh"
   host = "my-remote-linux-host"
   user = "my-username"
   private_key = "~/.ssh/my-remote-linux-host.pem"
@@ -232,6 +236,7 @@ connection "server1-staging" {
 connection "server2-staging" {
   plugin = "exec"
 
+  protocol = "ssh"
   host = "my-remote-linux-host"
   user = "my-username"
   private_key = "~/.ssh/my-remote-linux-host.pem"
