@@ -1,8 +1,8 @@
-## v0.0.3 [TBD]
+## v0.0.3 [2023-08-11]
 
 _Bug fixes_
 
-- Fixed a config file validation issue where it wasn't warning about some required fields. ([#6](https://github.com/turbot/steampipe-plugin-exec/issues/6))
+- Fixed the plugin to return an appropriate error message when the config file is missing required arguments. ([#7](https://github.com/turbot/steampipe-plugin-exec/pull/7))
 
 ## v0.0.2 [2023-07-20]
 
