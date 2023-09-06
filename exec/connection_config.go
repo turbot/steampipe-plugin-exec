@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 
 	"github.com/mitchellh/go-homedir"
 	communicator "github.com/turbot/go-exec-communicator"
@@ -16,6 +15,8 @@ import (
 type execConfig struct {
 	WorkingDir  *string  `cty:"working_dir"`
 	Interpreter []string `cty:"interpreter"`
+
+	Timeout *string `cty:"timeout"`
 
 	Protocol    *string `cty:"protocol"`
 	User        *string `cty:"user"`
@@ -50,6 +51,9 @@ var ConfigSchema = map[string]*schema.Attribute{
 		Elem: &schema.Attribute{Type: schema.TypeString},
 	},
 
+	"timeout": {
+		Type: schema.TypeString,
+	},
 	"protocol": {
 		Type: schema.TypeString,
 	},
@@ -126,11 +130,14 @@ func GetConfig(connection *plugin.Connection) execConfig {
 }
 
 // GetCommunicator :: creates a communicator from config
-func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, *exec.Cmd, bool, error) {
+func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, bool, error) {
 	conf := GetConfig(connection)
 
-	config := shared.ConnectionInfo{
-		Timeout: "10s",
+	config := shared.ConnectionInfo{}
+
+	config.Timeout = "15s"
+	if conf.Timeout != nil {
+		config.Timeout = *conf.Timeout
 	}
 
 	// If no other connection info is provided, assume local connection
@@ -144,18 +151,18 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		if conf.BastionUser != nil {
 			config.BastionUser = *conf.BastionUser
 		} else {
-			return nil, nil, localConnection, errors.New("bastion_user is required when using bastion host")
+			return nil, localConnection, errors.New("bastion_user is required when using bastion host")
 		}
 		if conf.BastionPassword != nil {
 			config.BastionPassword = *conf.BastionPassword
 		} else if conf.BastionPrivateKey != nil {
 			content, err := PathOrContents(*conf.BastionPrivateKey)
 			if err != nil {
-				return nil, nil, localConnection, err
+				return nil, localConnection, err
 			}
 			config.BastionPrivateKey = content
 		} else {
-			return nil, nil, localConnection, errors.New("either bastion_password or bastion_private_key is required when using bastion host")
+			return nil, localConnection, errors.New("either bastion_password or bastion_private_key is required when using bastion host")
 		}
 	}
 	if conf.BastionHostKey != nil {
@@ -185,7 +192,7 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		localConnection = false
 	} else {
 		if conf.ProxyUserName != nil {
-			return nil, nil, localConnection, errors.New("password is required when proxy username is set")
+			return nil, localConnection, errors.New("password is required when proxy username is set")
 		}
 	}
 
@@ -198,14 +205,14 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		config.Type = *conf.Protocol
 	} else {
 		if !localConnection {
-			return nil, nil, localConnection, errors.New("protocol is required in config")
+			return nil, localConnection, errors.New("protocol is required in config")
 		}
 	}
 	if conf.Host != nil {
 		config.Host = *conf.Host
 	} else {
 		if !localConnection {
-			return nil, nil, localConnection, errors.New("host is required in config")
+			return nil, localConnection, errors.New("host is required in config")
 		}
 	}
 	if conf.Port != nil {
@@ -222,39 +229,39 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 		if conf.User != nil {
 			config.User = *conf.User
 		} else {
-			return nil, nil, localConnection, errors.New("user is required for SSH connections")
+			return nil, localConnection, errors.New("user is required for SSH connections")
 		}
 		if conf.Password != nil {
 			config.Password = *conf.Password
 		} else if conf.PrivateKey != nil {
 			content, err := PathOrContents(*conf.PrivateKey)
 			if err != nil {
-				return nil, nil, localConnection, err
+				return nil, localConnection, err
 			}
 			config.PrivateKey = content
 		} else {
-			return nil, nil, localConnection, errors.New("either password or private_key is required for SSH connections")
+			return nil, localConnection, errors.New("either password or private_key is required for SSH connections")
 		}
 	}
 	if config.Type == "winrm" {
 		if conf.User != nil {
 			config.User = *conf.User
 		} else {
-			return nil, nil, localConnection, errors.New("user is required for WinRM connections")
+			return nil, localConnection, errors.New("user is required for WinRM connections")
 		}
 		if conf.Password != nil {
 			config.Password = *conf.Password
 		} else {
-			return nil, nil, localConnection, errors.New("password is required for WinRM connections")
+			return nil, localConnection, errors.New("password is required for WinRM connections")
 		}
 	}
 
 	if localConnection {
-		return nil, nil, localConnection, nil
+		return nil, localConnection, nil
 	}
 
 	comm, err := communicator.New(config)
-	return comm, nil, localConnection, err
+	return comm, localConnection, err
 }
 
 // PathOrContents :: returns the contents of a file if the parameter is a file path, otherwise returns the parameter itself

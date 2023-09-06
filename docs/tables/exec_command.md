@@ -9,7 +9,7 @@ Execute a command locally or on a remote machine and return the output as a sing
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output::jsonb -> 'core' ->> 'url' as jekins_war_url
+  stdout_output::jsonb -> 'core' ->> 'url' as jekins_war_url
 from
   exec_command
 where
@@ -25,7 +25,7 @@ SELECT
   dep.value as version
 FROM
   exec_command,
-  json_each_text(output::json->'dependencies') as dep(key, value)
+  json_each_text(stdout_output::json->'dependencies') as dep(key, value)
 where
   command = 'cat package.json';
 ```
@@ -35,7 +35,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   exec_command 
 where
@@ -47,7 +47,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   exec_command
 where
@@ -59,7 +59,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   exec_command
 where
@@ -71,7 +71,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output 
+  stdout_output 
 from
   exec_command 
 where
@@ -82,7 +82,7 @@ where
 
 ```sql
 select
-  output,
+  stdout_output,
   _ctx ->> 'connection_name' as host 
 from
   exec_command 
@@ -95,7 +95,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output 
+  stdout_output 
 from
   exec_command 
 where
@@ -107,7 +107,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output 
+  stdout_output 
 from
   exec_command 
 where
@@ -119,7 +119,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   exec_command
 where
@@ -131,7 +131,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   exec_command
 where
@@ -145,7 +145,7 @@ order by
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   windows.exec_remote_command 
 where
@@ -157,7 +157,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output 
+  stdout_output 
 from
   windows.exec_remote_command 
 where
@@ -169,7 +169,7 @@ where
 ```sql
 select
   _ctx ->> 'connection_name' as host,
-  output
+  stdout_output
 from
   exec_remote_command 
 where
@@ -186,7 +186,7 @@ select
   name
 from
   exec_command,
-  json_to_recordset(output::json) as x(index int, name text)
+  json_to_recordset(stdout_output::json) as x(index int, name text)
 where
   command = 'import json, socket; print(json.dumps([{"index": interface[0], "name": interface[1]} for interface in socket.if_nameindex()]))';
 ```
@@ -197,7 +197,7 @@ This example requires Perl interpreter to be set on `exec.spc` file. Please refe
 
 ```sql
 select
-  output as hostname
+  stdout_output as hostname
 from
   exec_command
 where

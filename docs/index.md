@@ -243,6 +243,19 @@ connection "server2-staging" {
 }
 ```
 
+#### Advanced configuration - Limiting the number of concurrent running commands
+
+This plugin opens a new SSH/WinRM connection for each query, so this might raise a flag on the host if you are running a lot of queries concurrently.
+To avoid that, `max_concurrency` limiter is set to `15` by default, but you can change that to match your needs.
+
+```hcl
+plugin "exec" {
+  limiter "exec_max_concurrency_limiter" {
+    max_concurrency = 15
+  }
+}
+```
+
 #### Local connection using a specific interpreter
 
 ##### ZSH interpreter

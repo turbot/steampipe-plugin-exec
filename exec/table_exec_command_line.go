@@ -7,6 +7,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/mitchellh/go-linereader"
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/remote"
 	"github.com/turbot/go-exec-communicator/shared"
@@ -36,13 +37,13 @@ func tableExecCommandLine(ctx context.Context) *plugin.Table {
 }
 
 func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	comm, _, isLocalConnection, err := GetCommunicator(d.Connection)
+	comm, isLocalConnection, err := GetCommunicator(d.Connection)
 	if err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "init", "command_error", err)
 		return nil, err
 	}
 	if isLocalConnection {
-		return listLocalCommand(ctx, d, h)
+		return listLocalCommandLine(ctx, d, h)
 	}
 
 	command := d.EqualsQualString("command")
@@ -54,27 +55,20 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	var cmd *remote.Cmd
 
 	outR, outW := io.Pipe()
-	errR, errW := io.Pipe()
+	// errR, errW := io.Pipe()
 	defer outW.Close()
-	defer errW.Close()
+	// defer errW.Close()
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err = outputLinesIntoRows(ctx, d, outR, false)
-		if err != nil {
-			plugin.Logger(ctx).Error("listRemoteCommandResult", "outputLinesIntoRows", err)
-		}
-	}()
+	output := []string{}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = outputLinesIntoRows(ctx, d, errR, true)
-		if err != nil {
-			plugin.Logger(ctx).Error("listRemoteCommandResult", "outputLinesIntoRows", err)
+		lr := linereader.New(outR)
+		for line := range lr.Ch {
+			output = append(output, line)
 		}
 	}()
 
@@ -107,7 +101,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	cmd = &remote.Cmd{
 		Command: command,
 		Stdout:  outW,
-		Stderr:  errW,
+		// Stderr:  errW,
 	}
 
 	result := commandResult{}
@@ -130,7 +124,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "comm.Disconnect...")
 	outW.Close()
-	errW.Close()
+	// errW.Close()
 	err = comm.Disconnect()
 	if err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "ctx_done", "disconnection failed")
@@ -141,16 +135,27 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	wg.Wait()
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "wg done!")
 
-	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "finished")
+	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "adding row...")
 
+	// If the command failed, return the stderr output
+	if result.ExitCode != 0 {
+		for i, line := range output {
+			d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i + 1, Stream: "stderr"})
+		}
+		return nil, nil
+	}
+
+	for i, line := range output {
+		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i + 1, Stream: "stdout"})
+	}
 	return nil, nil
 }
 
-func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listLocalCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
 	cmd, err := prepareCommand(ctx, d, h)
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "command_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "command_error", err)
 		return nil, err
 	}
 
@@ -161,18 +166,18 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "pipe_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "pipe_error", err)
 		log.Fatal(err)
 	}
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "pipe_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "pipe_error", err)
 		return nil, err
 	}
 
 	if err := cmd.Start(); err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "command_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "command_error", err)
 		return nil, err
 	}
 
@@ -183,7 +188,7 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		d.StreamListItem(ctx, outputRow{LineNumber: lineNumber, Line: stdoutScanner.Text(), Stream: "stdout"})
 	}
 	if err := stdoutScanner.Err(); err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "stdout_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "stdout_error", err)
 		return nil, err
 	}
 
@@ -193,14 +198,14 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		d.StreamListItem(ctx, outputRow{LineNumber: lineNumber, Line: stderrScanner.Text(), Stream: "stderr"})
 	}
 	if err := stderrScanner.Err(); err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "stderr_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "stderr_error", err)
 		return nil, err
 	}
 
 	if err := cmd.Wait(); err != nil {
 		// Log the error, but don't fail. The command error output will be captured
 		// and returned to the user.
-		plugin.Logger(ctx).Error("listLocalCommand", "command_error", err)
+		plugin.Logger(ctx).Error("listLocalCommandLine", "command_error", err)
 	}
 
 	return nil, nil
