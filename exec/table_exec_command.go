@@ -67,7 +67,10 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	go func() {
 		defer wg.Done()
 		buf := new(strings.Builder)
-		io.Copy(buf, outR)
+		_, err := io.Copy(buf, outR)
+		if err != nil {
+			plugin.Logger(ctx).Error("listExecCommand", "error reading output", err)
+		}
 		stdout = buf.String()
 	}()
 
