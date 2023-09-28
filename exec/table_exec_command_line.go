@@ -55,9 +55,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	var cmd *remote.Cmd
 
 	outR, outW := io.Pipe()
-	// errR, errW := io.Pipe()
 	defer outW.Close()
-	// defer errW.Close()
 
 	var wg sync.WaitGroup
 
@@ -101,7 +99,6 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	cmd = &remote.Cmd{
 		Command: command,
 		Stdout:  outW,
-		// Stderr:  errW,
 	}
 
 	result := commandResult{}
@@ -124,7 +121,6 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "comm.Disconnect...")
 	outW.Close()
-	// errW.Close()
 	err = comm.Disconnect()
 	if err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "ctx_done", "disconnection failed")

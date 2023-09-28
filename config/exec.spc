@@ -56,8 +56,8 @@ connection "exec_local" {
   # bastion_password = "my_password"
   # bastion_private_key = "~/.ssh/my-bastion-host.pem"
 
-  # Optional - Timeout for the connection in seconds, defaults to 15s
-  # timeout = "15s"
+  # Optional - Timeout for the connection in seconds, defaults to 15
+  # timeout = "15"
 # }
 
 # Defines a remote connection to a Windows host

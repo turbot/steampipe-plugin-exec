@@ -38,7 +38,7 @@ func tableExecCommand(ctx context.Context) *plugin.Table {
 func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	comm, isLocalConnection, err := GetCommunicator(d.Connection)
 	if err != nil {
-		plugin.Logger(ctx).Error("listExecCommand", "init", "command_error", err)
+		plugin.Logger(ctx).Error("listExecCommand", "configuration_error", err)
 		return nil, err
 	}
 	if isLocalConnection {
@@ -54,14 +54,11 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	var cmd *remote.Cmd
 
 	outR, outW := io.Pipe()
-	// errR, errW := io.Pipe()
 	defer outW.Close()
-	// defer errW.Close()
 
 	var wg sync.WaitGroup
 
 	stdout := ""
-	// stdout, stderr := "", ""
 
 	wg.Add(1)
 	go func() {
@@ -69,18 +66,10 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 		buf := new(strings.Builder)
 		_, err := io.Copy(buf, outR)
 		if err != nil {
-			plugin.Logger(ctx).Error("listExecCommand", "error reading output", err)
+			plugin.Logger(ctx).Error("listExecCommand", "output_read_error", err)
 		}
 		stdout = buf.String()
 	}()
-
-	// wg.Add(1)
-	// go func() {
-	// 	defer wg.Done()
-	// 	buf := new(strings.Builder)
-	// 	io.Copy(buf, errR)
-	// 	stderr = buf.String()
-	// }()
 
 	retryCtx, cancel := context.WithTimeout(ctx, comm.Timeout())
 	defer cancel()
@@ -97,55 +86,53 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	// Wait for the context to end and then disconnect
 	go func() {
-		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "wait for it...")
+		plugin.Logger(ctx).Debug("listExecCommand", "wait for it...")
 		<-ctx.Done()
-		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "done!")
-		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "disconnecting...")
+		plugin.Logger(ctx).Debug("listExecCommand", "done!")
+		plugin.Logger(ctx).Debug("listExecCommand", "disconnecting...")
 		err = comm.Disconnect()
 		if err != nil {
-			plugin.Logger(ctx).Error("listExecCommand", "ctx_done", "disconnection failure")
+			plugin.Logger(ctx).Error("listExecCommand", "disconnection failure")
 		}
-		plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "disconnected")
+		plugin.Logger(ctx).Debug("listExecCommand", "disconnected")
 	}()
 
 	cmd = &remote.Cmd{
 		Command: command,
 		Stdout:  outW,
-		// Stderr:  errW,
 	}
 
 	result := commandResult{}
 
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "cmd.Start...")
+	plugin.Logger(ctx).Debug("listExecCommand", "cmd.Start...")
 	if err := comm.Start(cmd); err != nil {
-		plugin.Logger(ctx).Error("listExecCommand", "comm.Start", "command_error", err)
+		plugin.Logger(ctx).Error("listExecCommand.comm.Start", "command_error", err)
 		return nil, err
 	}
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "cmd.Start done")
+	plugin.Logger(ctx).Debug("listExecCommand", "cmd.Start done")
 
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "cmd.Wait...")
+	plugin.Logger(ctx).Debug("listExecCommand", "cmd.Wait...")
 	if err := cmd.Wait(); err != nil {
-		plugin.Logger(ctx).Error("listExecCommand", "cmd.Wait", "command_error", err)
+		plugin.Logger(ctx).Error("listExecCommand.cmd.Wait", "command_error", err)
 		if e, ok := err.(*remote.ExitError); ok {
 			result.ExitCode = e.ExitStatus
 		}
 	}
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "cmd.Wait done")
+	plugin.Logger(ctx).Debug("listExecCommand", "cmd.Wait done")
 
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "comm.Disconnect...")
+	plugin.Logger(ctx).Debug("listExecCommand", "comm.Disconnect...")
 	outW.Close()
-	// errW.Close()
 	err = comm.Disconnect()
 	if err != nil {
-		plugin.Logger(ctx).Error("listExecCommand", "ctx_done", "disconnection failure")
+		plugin.Logger(ctx).Error("listExecCommand", "disconnection_failure")
 	}
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "comm.Disconnect done")
+	plugin.Logger(ctx).Debug("listExecCommand", "comm.Disconnect done")
 
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "wg waiting...")
+	plugin.Logger(ctx).Debug("listExecCommand", "wg waiting...")
 	wg.Wait()
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "wg done!")
+	plugin.Logger(ctx).Debug("listExecCommand", "wg done!")
 
-	plugin.Logger(ctx).Debug("listExecCommand", "ctx_done", "adding row...")
+	plugin.Logger(ctx).Debug("listExecCommand", "adding row...")
 
 	// If the command failed, return the stderr output
 	if result.ExitCode != 0 {

@@ -137,7 +137,7 @@ func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, 
 
 	config.Timeout = "15s"
 	if conf.Timeout != nil {
-		config.Timeout = *conf.Timeout
+		config.Timeout = fmt.Sprintf("%vs", *conf.Timeout)
 	}
 
 	// If no other connection info is provided, assume local connection
