@@ -193,18 +193,15 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	var stderrBytes bytes.Buffer
 
 	// Read standard output and standard error concurrently
-	go func() {
-		_, err := io.Copy(&stdoutBytes, stdout)
-		if err != nil {
-			plugin.Logger(ctx).Error("listLocalCommand", "error reading stdout", err)
-		}
-	}()
-	go func() {
-		_, err := io.Copy(&stderrBytes, stderr)
-		if err != nil {
-			plugin.Logger(ctx).Error("listLocalCommand", "error reading stderr", err)
-		}
-	}()
+	_, err = io.Copy(&stdoutBytes, stdout)
+	if err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "error reading stdout", err)
+	}
+
+	_, err = io.Copy(&stderrBytes, stderr)
+	if err != nil {
+		plugin.Logger(ctx).Error("listLocalCommand", "error reading stderr", err)
+	}
 
 	if err := cmd.Wait(); err != nil {
 		// Log the error, but don't fail. The command error output will be captured and returned to the user.
