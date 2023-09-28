@@ -1,7 +1,7 @@
 package exec
 
 import (
-	"bufio"
+	"bytes"
 	"context"
 	"io"
 	"strings"
@@ -189,38 +189,31 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	}
 
 	// Create slices to store standard output and standard error lines
-	var stdoutLines []string
-	var stderrLines []string
+	var stdoutBytes bytes.Buffer
+	var stderrBytes bytes.Buffer
 
 	// Read standard output and standard error concurrently
 	go func() {
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			line := scanner.Text()
-			stdoutLines = append(stdoutLines, line)
+		_, err := io.Copy(&stdoutBytes, stdout)
+		if err != nil {
+			plugin.Logger(ctx).Error("listLocalCommand", "error reading stdout", err)
 		}
 	}()
-
 	go func() {
-		scanner := bufio.NewScanner(stderr)
-		for scanner.Scan() {
-			line := scanner.Text()
-			stderrLines = append(stderrLines, line)
+		_, err := io.Copy(&stderrBytes, stderr)
+		if err != nil {
+			plugin.Logger(ctx).Error("listLocalCommand", "error reading stderr", err)
 		}
 	}()
 
 	if err := cmd.Wait(); err != nil {
-		// Log the error, but don't fail. The command error output will be captured
-		// and returned to the user.
+		// Log the error, but don't fail. The command error output will be captured and returned to the user.
 		plugin.Logger(ctx).Error("listLocalCommand", "cmd.Wait", "command_error", err)
 	}
 
-	stdoutString := strings.Join(stdoutLines, "\n")
-	stderrString := strings.Join(stderrLines, "\n")
-
 	result := commandResult{
-		StdoutOutput: stdoutString,
-		StderrOutput: stderrString,
+		StdoutOutput: stdoutBytes.String(),
+		StderrOutput: stderrBytes.String(),
 		ExitCode:     cmd.ProcessState.ExitCode(),
 	}
 	d.StreamListItem(ctx, result)

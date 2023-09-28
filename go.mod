@@ -2,13 +2,11 @@ module github.com/turbot/steampipe-plugin-exec
 
 go 1.21
 
-// replace github.com/turbot/go-exec-communicator => ../../sdks/go-exec-communicator
-
 require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-linereader v0.0.0-20190213213312-1b945b3263eb
 	github.com/turbot/go-exec-communicator v0.0.0-20230412124734-9374347749b6
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.6.0-rc.32
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.6.0
 
 )
 
