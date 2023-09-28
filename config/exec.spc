@@ -56,7 +56,7 @@ connection "exec_local" {
   # bastion_password = "my_password"
   # bastion_private_key = "~/.ssh/my-bastion-host.pem"
 
-  # Optional - Timeout for the connection in seconds, defaults to 15
+  # Optional - Timeout for the connection in seconds, defaults to 15 seconds
   # timeout = "15"
 # }
 
@@ -90,6 +90,6 @@ connection "exec_local" {
   # Optional - Ignore certificate for HTTPS connection. Defaults to false
   # insecure = true
 
-  # Optional - Timeout for the connection in seconds, defaults to 15s
-  # timeout = "15s"
+  # Optional - Timeout for the connection in seconds, defaults to 15 seconds
+  # timeout = "15"
 # }
