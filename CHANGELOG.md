@@ -1,10 +1,23 @@
-## v0.0.4 [TDB]
+## v0.0.4 [2023-09-29]
+
+_Breaking changes_
+
+- Removed the `output` column in the `exec_command` table. This column has been replaced by the `stdout_output` and `stderr_output` columns. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
+
+_What's new?_
+
+- Added `stdout_output` and `stderr_output` columns to the `exec_command` table. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
+- Added `stream` column to the `exec_command_line` table. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
+- Added plugin limiter `exec_global` with `MaxConcurrency` set to 15 in an effort to reduce abuse reports due to large number of concurrent remote connections. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
 
 _Bug fixes_
 
-- Added support for configuring the maximum concurrency limitation, which defaults to 15.
-- Removed the column `output` of table `exec_command` in favor of `stdout_output` and `stderr_output` columns.
-- Added the columns `stdout_output` and `stderr_output` to table `exec_command` to better reflect the streams of command output.
+- Results from the `exec_command` table should now be consistent when using local and remote connections. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.6.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v560-2023-09-27) which adds support for rate limiters. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
+- Recompiled plugin with Go 1.21. ([#13](https://github.com/turbot/steampipe-plugin-exec/pull/13))
 
 ## v0.0.3 [2023-08-11]
 
