@@ -5,6 +5,7 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/rate_limiter"
 )
 
 func Plugin(ctx context.Context) *plugin.Plugin {
@@ -13,6 +14,12 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
 			Schema:      ConfigSchema,
+		},
+		RateLimiters: []*rate_limiter.Definition{
+			{
+				MaxConcurrency: 15,
+				Name:           "exec_global",
+			},
 		},
 		DefaultTransform: transform.FromGo(),
 		TableMap: map[string]*plugin.Table{

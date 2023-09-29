@@ -5,11 +5,9 @@ connection "exec_local" {
 
   # Working directory to use when running commands.
   # Default is the current directory where steampipe is running.
-  # For example:
   working_dir = "."
 
-  # Shell interpreter to use for commands.
-  # Defaults: Windows is "cmd /C", otherwise "sh -c".
+  # Shell interpreter to use for local commands.
   # For example, to use bash:
   # interpreter = [ "/bin/bash", "-c" ]
 }

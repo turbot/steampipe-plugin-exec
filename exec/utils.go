@@ -3,19 +3,17 @@ package exec
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 
-	"github.com/mitchellh/go-linereader"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 type commandResult struct {
-	Output   string `json:"output"`
-	ExitCode int    `json:"exit_code"`
+	StdoutOutput string `json:"stdout_output"`
+	StderrOutput string `json:"stderr_output"`
+	ExitCode     int    `json:"exit_code"`
 }
 
 type outputRow struct {
@@ -89,42 +87,4 @@ func prepareCommand(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	cmd.Env = cmdEnv
 
 	return cmd, nil
-}
-
-func outputLinesIntoRows(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
-	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows starting...")
-
-	stream := "stdout"
-	if isError {
-		stream = "stderr"
-	}
-
-	lr := linereader.New(r)
-	i := 1
-	for line := range lr.Ch {
-		d.StreamListItem(ctx, outputRow{Line: line, LineNumber: i, Stream: stream})
-		i = i + 1
-	}
-
-	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputLinesIntoRows done")
-	return nil
-}
-
-func outputIntoRow(ctx context.Context, d *plugin.QueryData, r io.Reader, isError bool) error {
-	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputIntoRow starting...")
-
-	exitCode := 0
-	if isError {
-		exitCode = 1
-	}
-
-	buf := new(strings.Builder)
-	n, _ := io.Copy(buf, r)
-	if n == 0 {
-		return nil
-	}
-	d.StreamListItem(ctx, commandResult{Output: buf.String(), ExitCode: exitCode})
-
-	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "outputIntoRow done")
-	return nil
 }
