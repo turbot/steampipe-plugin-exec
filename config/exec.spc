@@ -3,11 +3,11 @@
 connection "exec_local" {
   plugin = "exec"
 
-  # (local only) Working directory to use when running commands.
+  # Working directory to use when running commands.
   # Default is the current directory where steampipe is running.
   working_dir = "."
 
-  # (local only) Shell interpreter to use for local commands.
+  # Shell interpreter to use for local commands.
   # For example, to use bash:
   # interpreter = [ "/bin/bash", "-c" ]
 }
@@ -55,9 +55,6 @@ connection "exec_local" {
   # bastion_port = 22
   # bastion_password = "my_password"
   # bastion_private_key = "~/.ssh/my-bastion-host.pem"
-
-  # Optional - Timeout for the connection in seconds, defaults to 15 seconds
-  # timeout = "15"
 # }
 
 # Defines a remote connection to a Windows host
@@ -89,7 +86,4 @@ connection "exec_local" {
 
   # Optional - Ignore certificate for HTTPS connection. Defaults to false
   # insecure = true
-
-  # Optional - Timeout for the connection in seconds, defaults to 15 seconds
-  # timeout = "15"
 # }

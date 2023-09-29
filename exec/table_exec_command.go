@@ -160,18 +160,18 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "error reading stdout", err)
+		plugin.Logger(ctx).Error("listLocalCommand", "stdout_read_error", err)
 		return nil, err
 	}
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "error reading stderr", err)
+		plugin.Logger(ctx).Error("listLocalCommand", "stderr_read_error", err)
 		return nil, err
 	}
 
 	if err := cmd.Start(); err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "error starting command", err)
+		plugin.Logger(ctx).Error("listLocalCommand", "command_start_error", err)
 		return nil, err
 	}
 
@@ -182,12 +182,12 @@ func listLocalCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	// Read standard output and standard error concurrently
 	_, err = io.Copy(&stdoutBytes, stdout)
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "error reading stdout", err)
+		plugin.Logger(ctx).Error("listLocalCommand", "stdout_read_error", err)
 	}
 
 	_, err = io.Copy(&stderrBytes, stderr)
 	if err != nil {
-		plugin.Logger(ctx).Error("listLocalCommand", "error reading stderr", err)
+		plugin.Logger(ctx).Error("listLocalCommand", "stderr_read_error", err)
 	}
 
 	if err := cmd.Wait(); err != nil {

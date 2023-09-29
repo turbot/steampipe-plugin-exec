@@ -287,7 +287,7 @@ connection "exec_local" {
 }
 
 plugin "exec" {
-  limiter "exec_max_concurrency_limiter" {
+  limiter "exec_global" {
     max_concurrency = 15
   }
 }

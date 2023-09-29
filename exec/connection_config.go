@@ -16,8 +16,6 @@ type execConfig struct {
 	WorkingDir  *string  `cty:"working_dir"`
 	Interpreter []string `cty:"interpreter"`
 
-	Timeout *string `cty:"timeout"`
-
 	Protocol    *string `cty:"protocol"`
 	User        *string `cty:"user"`
 	Password    *string `cty:"password"`
@@ -51,9 +49,6 @@ var ConfigSchema = map[string]*schema.Attribute{
 		Elem: &schema.Attribute{Type: schema.TypeString},
 	},
 
-	"timeout": {
-		Type: schema.TypeString,
-	},
 	"protocol": {
 		Type: schema.TypeString,
 	},
@@ -133,11 +128,8 @@ func GetConfig(connection *plugin.Connection) execConfig {
 func GetCommunicator(connection *plugin.Connection) (communicator.Communicator, bool, error) {
 	conf := GetConfig(connection)
 
-	config := shared.ConnectionInfo{}
-
-	config.Timeout = "15s"
-	if conf.Timeout != nil {
-		config.Timeout = fmt.Sprintf("%vs", *conf.Timeout)
+	config := shared.ConnectionInfo{
+		Timeout: "10s",
 	}
 
 	// If no other connection info is provided, assume local connection

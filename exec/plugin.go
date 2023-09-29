@@ -18,7 +18,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		RateLimiters: []*rate_limiter.Definition{
 			{
 				MaxConcurrency: 15,
-				Name:           "exec_max_concurrency_limiter",
+				Name:           "exec_global",
 			},
 		},
 		DefaultTransform: transform.FromGo(),
