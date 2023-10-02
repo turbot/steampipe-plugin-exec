@@ -1,3 +1,9 @@
+## v0.1.0 [2023-10-02]
+
+_Dependencies_
+
+- Upgraded to [steampipe-plugin-sdk v5.6.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v561-2023-09-29) with support for rate limiters. ([#17](https://github.com/turbot/steampipe-plugin-exec/pull/17))
+
 ## v0.0.4 [2023-09-29]
 
 _Breaking changes_
