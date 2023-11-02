@@ -147,7 +147,7 @@ select
   _ctx ->> 'connection_name' as host,
   stdout_output
 from
-  windows.exec_remote_command 
+  windows.exec_command 
 where
   command = 'dir';
 ```
@@ -159,7 +159,7 @@ select
   _ctx ->> 'connection_name' as host,
   stdout_output 
 from
-  windows.exec_remote_command 
+  windows.exec_command 
 where
   command = 'ipconfig /all';
 ```
@@ -171,9 +171,24 @@ select
   _ctx ->> 'connection_name' as host,
   stdout_output
 from
-  exec_remote_command 
+  exec_command 
 where
   command = 'diskutil list';
+```
+
+### Handle failing commands
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  case
+    when exit_code = 0 then stdout_output
+    else stderr_output
+  end as output
+from
+  exec_command 
+where
+  command = 'ls non_existing_file';
 ```
 
 ### Query network interfaces through Python interpreter on local machine
