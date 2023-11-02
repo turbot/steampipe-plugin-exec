@@ -19,6 +19,22 @@ order by
   line_number;
 ```
 
+### List files on Linux host and show the stream used for output
+
+```sql
+select
+  _ctx ->> 'connection_name' as host,
+  line,
+  stream
+from
+  exec_command_line 
+where
+  command = 'ls non_existing_file' 
+order by
+  _ctx ->> 'connection_name',
+  line_number;
+```
+
 ### List devices on Linux host
 
 ```sql
