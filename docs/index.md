@@ -8,6 +8,7 @@ short_name: "exec"
 description: "Steampipe plugin to run & query shell commands on local and remote servers."
 og_description: "Run & query shell commands with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/exec-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Exec + Steampipe
