@@ -12,31 +12,31 @@ import (
 )
 
 type execConfig struct {
-	WorkingDir  *string  `cty:"working_dir"`
-	Interpreter []string `cty:"interpreter,optional"`
+	WorkingDir  *string  `hcl:"working_dir"`
+	Interpreter []string `hcl:"interpreter,optional"`
 
-	Protocol    *string `cty:"protocol"`
-	User        *string `cty:"user"`
-	Password    *string `cty:"password"`
-	PrivateKey  *string `cty:"private_key"`
-	Certificate *string `cty:"certificate"`
-	Host        *string `cty:"host"`
-	HostKey     *string `cty:"host_key"`
-	Port        *int    `cty:"port"`
-	Https       *bool   `cty:"https"`
-	Insecure    *bool   `cty:"insecure"`
+	Protocol    *string `hcl:"protocol"`
+	User        *string `hcl:"user"`
+	Password    *string `hcl:"password"`
+	PrivateKey  *string `hcl:"private_key"`
+	Certificate *string `hcl:"certificate"`
+	Host        *string `hcl:"host"`
+	HostKey     *string `hcl:"host_key"`
+	Port        *int    `hcl:"port"`
+	Https       *bool   `hcl:"https"`
+	Insecure    *bool   `hcl:"insecure"`
 
-	BastionUser       *string `cty:"bastion_user"`
-	BastionPassword   *string `cty:"bastion_password"`
-	BastionPrivateKey *string `cty:"bastion_private_key"`
-	BastionHost       *string `cty:"bastion_host"`
-	BastionHostKey    *string `cty:"bastion_host_key"`
-	BastionPort       *int    `cty:"bastion_port"`
+	BastionUser       *string `hcl:"bastion_user"`
+	BastionPassword   *string `hcl:"bastion_password"`
+	BastionPrivateKey *string `hcl:"bastion_private_key"`
+	BastionHost       *string `hcl:"bastion_host"`
+	BastionHostKey    *string `hcl:"bastion_host_key"`
+	BastionPort       *int    `hcl:"bastion_port"`
 
-	ProxyHost         *string `cty:"proxy_host"`
-	ProxyPort         *int    `cty:"proxy_port"`
-	ProxyUserName     *string `cty:"proxy_user_name"`
-	ProxyUserPassword *string `cty:"proxy_user_password"`
+	ProxyHost         *string `hcl:"proxy_host"`
+	ProxyPort         *int    `hcl:"proxy_port"`
+	ProxyUserName     *string `hcl:"proxy_user_name"`
+	ProxyUserPassword *string `hcl:"proxy_user_password"`
 }
 
 func ConfigInstance() interface{} {
