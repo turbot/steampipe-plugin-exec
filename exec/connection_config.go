@@ -9,106 +9,34 @@ import (
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/shared"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/schema"
 )
 
 type execConfig struct {
-	WorkingDir  *string  `cty:"working_dir"`
-	Interpreter []string `cty:"interpreter"`
+	WorkingDir  *string  `hcl:"working_dir"`
+	Interpreter []string `hcl:"interpreter,optional"`
 
-	Protocol    *string `cty:"protocol"`
-	User        *string `cty:"user"`
-	Password    *string `cty:"password"`
-	PrivateKey  *string `cty:"private_key"`
-	Certificate *string `cty:"certificate"`
-	Host        *string `cty:"host"`
-	HostKey     *string `cty:"host_key"`
-	Port        *int    `cty:"port"`
-	Https       *bool   `cty:"https"`
-	Insecure    *bool   `cty:"insecure"`
+	Protocol    *string `hcl:"protocol"`
+	User        *string `hcl:"user"`
+	Password    *string `hcl:"password"`
+	PrivateKey  *string `hcl:"private_key"`
+	Certificate *string `hcl:"certificate"`
+	Host        *string `hcl:"host"`
+	HostKey     *string `hcl:"host_key"`
+	Port        *int    `hcl:"port"`
+	Https       *bool   `hcl:"https"`
+	Insecure    *bool   `hcl:"insecure"`
 
-	BastionUser       *string `cty:"bastion_user"`
-	BastionPassword   *string `cty:"bastion_password"`
-	BastionPrivateKey *string `cty:"bastion_private_key"`
-	BastionHost       *string `cty:"bastion_host"`
-	BastionHostKey    *string `cty:"bastion_host_key"`
-	BastionPort       *int    `cty:"bastion_port"`
+	BastionUser       *string `hcl:"bastion_user"`
+	BastionPassword   *string `hcl:"bastion_password"`
+	BastionPrivateKey *string `hcl:"bastion_private_key"`
+	BastionHost       *string `hcl:"bastion_host"`
+	BastionHostKey    *string `hcl:"bastion_host_key"`
+	BastionPort       *int    `hcl:"bastion_port"`
 
-	ProxyHost         *string `cty:"proxy_host"`
-	ProxyPort         *int    `cty:"proxy_port"`
-	ProxyUserName     *string `cty:"proxy_user_name"`
-	ProxyUserPassword *string `cty:"proxy_user_password"`
-}
-
-var ConfigSchema = map[string]*schema.Attribute{
-	"working_dir": {
-		Type: schema.TypeString,
-	},
-	"interpreter": {
-		Type: schema.TypeList,
-		Elem: &schema.Attribute{Type: schema.TypeString},
-	},
-
-	"protocol": {
-		Type: schema.TypeString,
-	},
-	"host": {
-		Type: schema.TypeString,
-	},
-	"host_key": {
-		Type: schema.TypeString,
-	},
-	"user": {
-		Type: schema.TypeString,
-	},
-	"password": {
-		Type: schema.TypeString,
-	},
-	"private_key": {
-		Type: schema.TypeString,
-	},
-	"certificate": {
-		Type: schema.TypeString,
-	},
-	"port": {
-		Type: schema.TypeInt,
-	},
-	"https": {
-		Type: schema.TypeBool,
-	},
-	"insecure": {
-		Type: schema.TypeBool,
-	},
-	"bastion_user": {
-		Type: schema.TypeString,
-	},
-	"bastion_password": {
-		Type: schema.TypeString,
-	},
-	"bastion_private_key": {
-		Type: schema.TypeString,
-	},
-	"bastion_host": {
-		Type: schema.TypeString,
-	},
-	"bastion_host_key": {
-		Type: schema.TypeString,
-	},
-	"bastion_port": {
-		Type: schema.TypeInt,
-	},
-	"proxy_host": {
-		Type: schema.TypeString,
-	},
-	"proxy_port": {
-		Type: schema.TypeInt,
-	},
-	"proxy_user_name": {
-		Type: schema.TypeString,
-	},
-	"proxy_user_password": {
-		Type: schema.TypeString,
-	},
+	ProxyHost         *string `hcl:"proxy_host"`
+	ProxyPort         *int    `hcl:"proxy_port"`
+	ProxyUserName     *string `hcl:"proxy_user_name"`
+	ProxyUserPassword *string `hcl:"proxy_user_password"`
 }
 
 func ConfigInstance() interface{} {
