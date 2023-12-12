@@ -8,13 +8,14 @@ short_name: "exec"
 description: "Steampipe plugin to run & query shell commands on local and remote servers."
 og_description: "Run & query shell commands with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/exec-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Exec + Steampipe
 
 Execute commands locally or on remote Linux and Windows hosts through SSH or WinRM.
 
-[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
+[Steampipe](https://steampipe.io) is an open-source zero-ETL engine to instantly query cloud APIs using SQL.
 
 For example:
 
@@ -293,7 +294,4 @@ plugin "exec" {
 }
 ```
 
-## Get involved
 
-- Open source: https://github.com/turbot/steampipe-plugin-exec
-- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
