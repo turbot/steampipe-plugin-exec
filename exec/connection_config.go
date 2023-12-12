@@ -9,12 +9,11 @@ import (
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/shared"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/schema"
 )
 
 type execConfig struct {
 	WorkingDir  *string  `cty:"working_dir"`
-	Interpreter []string `cty:"interpreter"`
+	Interpreter []string `cty:"interpreter,optional"`
 
 	Protocol    *string `cty:"protocol"`
 	User        *string `cty:"user"`
@@ -38,77 +37,6 @@ type execConfig struct {
 	ProxyPort         *int    `cty:"proxy_port"`
 	ProxyUserName     *string `cty:"proxy_user_name"`
 	ProxyUserPassword *string `cty:"proxy_user_password"`
-}
-
-var ConfigSchema = map[string]*schema.Attribute{
-	"working_dir": {
-		Type: schema.TypeString,
-	},
-	"interpreter": {
-		Type: schema.TypeList,
-		Elem: &schema.Attribute{Type: schema.TypeString},
-	},
-
-	"protocol": {
-		Type: schema.TypeString,
-	},
-	"host": {
-		Type: schema.TypeString,
-	},
-	"host_key": {
-		Type: schema.TypeString,
-	},
-	"user": {
-		Type: schema.TypeString,
-	},
-	"password": {
-		Type: schema.TypeString,
-	},
-	"private_key": {
-		Type: schema.TypeString,
-	},
-	"certificate": {
-		Type: schema.TypeString,
-	},
-	"port": {
-		Type: schema.TypeInt,
-	},
-	"https": {
-		Type: schema.TypeBool,
-	},
-	"insecure": {
-		Type: schema.TypeBool,
-	},
-	"bastion_user": {
-		Type: schema.TypeString,
-	},
-	"bastion_password": {
-		Type: schema.TypeString,
-	},
-	"bastion_private_key": {
-		Type: schema.TypeString,
-	},
-	"bastion_host": {
-		Type: schema.TypeString,
-	},
-	"bastion_host_key": {
-		Type: schema.TypeString,
-	},
-	"bastion_port": {
-		Type: schema.TypeInt,
-	},
-	"proxy_host": {
-		Type: schema.TypeString,
-	},
-	"proxy_port": {
-		Type: schema.TypeInt,
-	},
-	"proxy_user_name": {
-		Type: schema.TypeString,
-	},
-	"proxy_user_password": {
-		Type: schema.TypeString,
-	},
 }
 
 func ConfigInstance() interface{} {
