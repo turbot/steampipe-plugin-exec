@@ -1,14 +1,14 @@
 module github.com/turbot/steampipe-plugin-exec
 
-go 1.21.0
+go 1.22.4
 
-toolchain go1.21.1
+toolchain go1.22.6
 
 require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-linereader v0.0.0-20190213213312-1b945b3263eb
 	github.com/turbot/go-exec-communicator v0.0.0-20230412124734-9374347749b6
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.10.1
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.10.3
 
 )
 
