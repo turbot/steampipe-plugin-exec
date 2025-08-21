@@ -21,7 +21,7 @@ For example:
 
 ```sql
 select
-  output
+  stdout_output
 from
   exec_command 
 where
@@ -30,7 +30,7 @@ where
 
 ```
 +------------------------------------------------------+
-| output                                               |
+| stdout_output                                        |
 +------------------------------------------------------+
 | Filesystem      Size  Used Avail Use% Mounted on     |
 | /dev/root       7.6G  3.4G  4.3G  44% /              |
