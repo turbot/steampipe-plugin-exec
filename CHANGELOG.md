@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed the example query in the plugin documentation to use use the correct column name `exec_output` instead of `output`. ([#63](https://github.com/turbot/steampipe-plugin-exec/pull/63)) (Thanks [@pdecat](https://github.com/pdecat) for the contribution!!)
+- Fixed the example query in the plugin documentation to use the correct column name `exec_output` instead of `output`. ([#63](https://github.com/turbot/steampipe-plugin-exec/pull/63)) (Thanks [@pdecat](https://github.com/pdecat) for the contribution!!)
 
 _Dependencies_
 
