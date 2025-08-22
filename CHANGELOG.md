@@ -1,3 +1,14 @@
+## v1.2.0 [2025-08-22]
+
+_Bug fixes_
+
+- Fixed the example query in the plugin documentation to use use the correct column name `exec_output` instead of `output`. ([#63](https://github.com/turbot/steampipe-plugin-exec/pull/63)) (Thanks [@pdecat](https://github.com/pdecat) for the contribution!!)
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.24`.
+- Recompiled plugin with [steampipe-plugin-sdk v5.13.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5130-2025-07-21) that addresses critical and high vulnerabilities in dependent packages.
+
 ## v1.1.1 [2025-04-18]
 
 _Bug fixes_
