@@ -9,7 +9,6 @@ require (
 	github.com/mitchellh/go-linereader v0.0.0-20190213213312-1b945b3263eb
 	github.com/turbot/go-exec-communicator v0.0.0-20230412124734-9374347749b6
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.13.0
-
 )
 
 require (
@@ -96,7 +95,7 @@ require (
 	github.com/stevenle/topsort v0.2.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/turbot/go-kit v1.1.0 // indirect
-	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
