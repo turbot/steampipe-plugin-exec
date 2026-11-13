@@ -11,9 +11,9 @@ import (
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/remote"
 	"github.com/turbot/go-exec-communicator/shared"
-	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin/transform"
 )
 
 func tableExecCommandLine(ctx context.Context) *plugin.Table {
@@ -55,7 +55,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	var cmd *remote.Cmd
 
 	outR, outW := io.Pipe()
-	defer outW.Close()
+	defer func() { _ = outW.Close() }()
 
 	var wg sync.WaitGroup
 
@@ -120,7 +120,7 @@ func listExecCommandLine(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "cmd.Wait done")
 
 	plugin.Logger(ctx).Debug("listRemoteCommandResult", "ctx_done", "comm.Disconnect...")
-	outW.Close()
+	_ = outW.Close()
 	err = comm.Disconnect()
 	if err != nil {
 		plugin.Logger(ctx).Error("listRemoteCommandResult", "ctx_done", "disconnection failed")

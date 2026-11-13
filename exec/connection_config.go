@@ -8,7 +8,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/shared"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 type execConfig struct {
@@ -45,10 +45,10 @@ func ConfigInstance() interface{} {
 
 // GetConfig :: retrieve and cast connection config from query data
 func GetConfig(connection *plugin.Connection) execConfig {
-	if connection == nil || connection.Config == nil {
+	if connection == nil || connection.GetConfig() == nil {
 		return execConfig{}
 	}
-	config, _ := connection.Config.(execConfig)
+	config, _ := connection.GetConfig().(execConfig)
 	return config
 }
 
