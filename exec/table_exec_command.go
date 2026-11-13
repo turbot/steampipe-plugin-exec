@@ -10,9 +10,9 @@ import (
 	communicator "github.com/turbot/go-exec-communicator"
 	"github.com/turbot/go-exec-communicator/remote"
 	"github.com/turbot/go-exec-communicator/shared"
-	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin/transform"
 )
 
 func tableExecCommand(ctx context.Context) *plugin.Table {
@@ -54,7 +54,7 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	var cmd *remote.Cmd
 
 	outR, outW := io.Pipe()
-	defer outW.Close()
+	defer func() { _ = outW.Close() }()
 
 	var wg sync.WaitGroup
 
@@ -121,7 +121,7 @@ func listExecCommand(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	plugin.Logger(ctx).Debug("listExecCommand", "cmd.Wait done")
 
 	plugin.Logger(ctx).Debug("listExecCommand", "comm.Disconnect...")
-	outW.Close()
+	_ = outW.Close()
 	err = comm.Disconnect()
 	if err != nil {
 		plugin.Logger(ctx).Error("listExecCommand", "disconnection_failure")
